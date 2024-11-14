@@ -1,0 +1,27 @@
+{
+  "name": "use-recaptcha-react",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "default": "./index.js"
+    }
+  },
+  "scripts": {
+    "dev": "swc ./source -d ./_dist -w & tsc -w --pretty --skipLibCheck",
+    "build": "swc ./source -d ./_dist & tsc --pretty --skipLibCheck"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@swc/cli": "^0.5.0",
+    "@swc/core": "^1.9.2",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "typescript": "5.5.4"
+  },
+  "dependencies": {
+    "react": "^18",
+    "react-dom": "^18.3.1"
+  }
+}

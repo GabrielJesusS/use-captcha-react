@@ -1,3 +1,7 @@
+"use client";
+
+import "use-recaptcha-react";
+
 export default function Home() {
   return (
     <div>
