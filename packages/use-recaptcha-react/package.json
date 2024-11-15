@@ -4,9 +4,9 @@
   "private": true,
   "exports": {
     ".": {
-      "default": "./_build/cjs/source/main/index.cjs",
-      "require": "./_build/cjs/source/main/index.cjs",
-      "import": "./_build/es6/source/main/index.mjs",
+      "default": "./_build/cjs/source/main/index.js",
+      "require": "./_build/cjs/source/main/index.js",
+      "import": "./_build/es6/source/main/index.js",
       "types": "./_build/types/source/main/index.d.ts"
     }
   },
