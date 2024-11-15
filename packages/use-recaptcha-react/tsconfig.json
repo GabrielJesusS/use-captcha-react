@@ -1,7 +1,7 @@
 {
   "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
-    "outDir": "_build/types/source/main",
+    "outDir": "_build/types/source",
     "allowJs": true,
     "declaration": true,
     "skipLibCheck": true,
