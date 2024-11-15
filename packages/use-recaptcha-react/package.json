@@ -2,15 +2,17 @@
   "name": "use-recaptcha-react",
   "version": "0.0.0",
   "private": true,
-  "main": "index.js",
   "exports": {
     ".": {
-      "default": "./index.js"
+      "default": "./_build/cjs/source/main/index.cjs",
+      "require": "./_build/cjs/source/main/index.cjs",
+      "import": "./_build/es6/source/main/index.mjs",
+      "types": "./_build/types/source/main/index.d.ts"
     }
   },
   "scripts": {
-    "dev": "swc ./source -d ./_dist -w & tsc -w --pretty --skipLibCheck",
-    "build": "swc ./source -d ./_dist & tsc --pretty --skipLibCheck"
+    "dev": "swc ./source -d ./_build/es6 -C module.type=es6 -w & swc ./source -d ./_build/cjs -C module.type=commonjs -w & tsc -w --pretty --skipLibCheck",
+    "build": "swc ./source -d ./_build/es6 -C module.type=es6 & swc ./source -d ./_build/cjs -C module.type=commonjs & tsc --pretty --skipLibCheck"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

@@ -1,12 +1,12 @@
 {
   "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
-    "outDir": "_dist/source",
+    "outDir": "_build/types/source/main",
     "allowJs": true,
     "declaration": true,
     "skipLibCheck": true,
-    "emitDeclarationOnly": true,
-    "declarationMap": false
+    "declarationMap": false,
+    "emitDeclarationOnly": true
   },
   "include": ["./source/**/*.ts", "./source/**/*.tsx"],
   "exclude": ["node_modules"]

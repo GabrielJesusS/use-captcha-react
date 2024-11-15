@@ -1,7 +1,7 @@
 {
   "$schema": "https://swc.rs/schema.json",
   "module": {
-    "type": "commonjs"
+    "type": "es6"
   },
   "jsc": {
     "parser": {
