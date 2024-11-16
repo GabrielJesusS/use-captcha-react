@@ -4,10 +4,14 @@
   "private": true,
   "exports": {
     ".": {
-      "default": "./_build/cjs/source/main/index.js",
       "require": "./_build/cjs/source/main/index.js",
       "import": "./_build/es6/source/main/index.js",
       "types": "./_build/types/source/main/index.d.ts"
+    },
+    "./providers/googleReCaptchaV2": {
+      "require": "./_build/cjs/source/providers/GoogleReCaptchaV2Provider.js",
+      "import": "./_build/es6/source/providers/GoogleReCaptchaV2Provider.js",
+      "types": "./_build/types/source/providers/GoogleReCaptchaV2Provider.d.ts"
     }
   },
   "scripts": {
