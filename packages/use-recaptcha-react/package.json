@@ -4,26 +4,37 @@
   "private": true,
   "exports": {
     ".": {
+      "types": "./_build/types/source/main/index.d.ts",
       "require": "./_build/cjs/source/main/index.js",
-      "import": "./_build/es6/source/main/index.js",
-      "types": "./_build/types/source/main/index.d.ts"
+      "import": "./_build/es6/source/main/index.js"
     },
     "./providers/googleReCaptchaV2": {
+      "types": "./_build/types/source/providers/GoogleReCaptchaV2Provider.d.ts",
       "require": "./_build/cjs/source/providers/GoogleReCaptchaV2Provider.js",
-      "import": "./_build/es6/source/providers/GoogleReCaptchaV2Provider.js",
-      "types": "./_build/types/source/providers/GoogleReCaptchaV2Provider.d.ts"
+      "import": "./_build/es6/source/providers/GoogleReCaptchaV2Provider.js"
     }
   },
+  "size-limit": [
+    {
+      "path": "./_build/cjs/source/main/*.js"
+    },
+    {
+      "path": "./_build/es6/source/main/*.js"
+    }
+  ],
   "scripts": {
     "dev": "swc ./source -d ./_build/es6 -C module.type=es6 -w & swc ./source -d ./_build/cjs -C module.type=commonjs -w & tsc -w --pretty --skipLibCheck",
-    "build": "swc ./source -d ./_build/es6 -C module.type=es6 & swc ./source -d ./_build/cjs -C module.type=commonjs & tsc --pretty --skipLibCheck"
+    "build": "swc ./source -d ./_build/es6 -C module.type=es6 & swc ./source -d ./_build/cjs -C module.type=commonjs & tsc --pretty --skipLibCheck",
+    "size": "size-limit"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@size-limit/preset-small-lib": "^11.1.6",
     "@swc/cli": "^0.5.0",
     "@swc/core": "^1.9.2",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "size-limit": "^11.1.6",
     "typescript": "5.5.4"
   },
   "dependencies": {

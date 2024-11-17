@@ -22,5 +22,5 @@
     "externalHelpers": false,
     "keepClassNames": false
   },
-  "minify": false
+  "minify": true
 }
