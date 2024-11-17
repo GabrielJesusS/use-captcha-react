@@ -9,9 +9,14 @@ const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_KEY ?? "";
 
 export const Captcha = () => {
   const [isSubmitting, setSubmitting] = useState(false);
-  const { ref, executeAsync } = useCaptcha(GoogleReCaptchaV2Provider, siteKey, {
-    size: "invisible",
-  });
+  const [ref, { executeAsync, reset, getValue }] = useCaptcha(
+    GoogleReCaptchaV2Provider,
+    siteKey,
+    {
+      size: "invisible",
+      hl: "pt",
+    },
+  );
 
   function handleSubmit(handler: FormEventHandler) {
     return async (event: FormEvent) => {
@@ -27,12 +32,18 @@ export const Captcha = () => {
     };
   }
 
-  async function handleSuccessSubmit(event: FormEvent) {
+  async function handleSuccessSubmit() {
     setSubmitting(true);
 
-    await sleep(3);
+    await sleep(2);
 
     alert("Form sended!");
+
+    const token = getValue();
+
+    console.log(`The form has sended with the following token: ${token}`);
+
+    reset();
 
     setSubmitting(false);
   }

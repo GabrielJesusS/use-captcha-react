@@ -9,7 +9,7 @@ declare global {
         ) => string;
         execute: (widgetId: string) => void;
         reset: (widgetId: string) => void;
-        getResponse: (widgetId: string) => void;
+        getResponse: (widgetId: string) => string;
         ready: (cb: () => void) => void;
       }
     | undefined;
@@ -30,7 +30,11 @@ type GoogleReCaptchaV2Type = "image" | "audio";
 
 type GoogleReCaptchaV2BadgePosition = "bottomright" | "bottomleft" | "inline";
 
-type PromiseResolver = (value: string | PromiseLike<string>) => void;
+type Token = string | null;
+
+type PromiseResolver = (value: Token | PromiseLike<Token>) => void;
+
+type PromiseRejector = (error: Error | PromiseLike<Error>) => void;
 
 type GoogleReCaptchaV2Options = {
   hl?: string;
@@ -41,7 +45,7 @@ type GoogleReCaptchaV2Options = {
   size?: GoogleReCaptchaV2Size;
   theme?: GoogleReCaptchaV2Theme;
   badge?: GoogleReCaptchaV2BadgePosition;
-  onChange?: (token: string) => void;
+  onChange?: (token: Token) => void;
   onExpired?: () => void;
   onErrored?: () => void;
 };
@@ -53,18 +57,25 @@ export class GoogleReCaptchaV2Provider
 
   public src = "https://www.google.com/recaptcha/api.js?render=explicit";
 
-  public widgetId?: string = undefined;
-
   public key: string;
 
   public options?: GoogleReCaptchaV2Options | undefined;
 
+  private widgetId?: string = undefined;
+
+  private executeRequested = false;
+
   private currentPromiseResolver: PromiseResolver | null = null;
+
+  private currentPromiseRejector: PromiseRejector | null = null;
 
   constructor(key: string, options?: GoogleReCaptchaV2Options) {
     this.key = key;
     this.options = options;
-    this.onChange = this.onChange.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleErrored = this.handleErrored.bind(this);
+    this.handleExpired = this.handleExpired.bind(this);
+    this.cleanupPromise = this.cleanupPromise.bind(this);
   }
 
   private extractMethod<T extends GoogleReCaptchaV2Methods>(method: T) {
@@ -75,74 +86,112 @@ export class GoogleReCaptchaV2Provider
     return grecaptcha[method];
   }
 
-  ready(cb: () => void) {
+  private ready(cb: () => void) {
     const onReady = this.extractMethod("ready");
     if (onReady) {
       onReady(cb);
     }
   }
 
-  render(element: HTMLElement) {
-    const render = this.extractMethod("render");
-    if (render && this.widgetId === undefined) {
-      const wrapper = document.createElement("div");
-      this.widgetId = render(wrapper, {
-        sitekey: this.key,
-        callback: this.onChange,
-        theme: this.options?.theme,
-        type: this.options?.type,
-        tabindex: this.options?.tabindex,
-        "expired-callback": this.options?.onExpired,
-        "error-callback": this.options?.onErrored,
-        size: this.options?.size,
-        stoken: this.options?.stoken,
-        hl: this.options?.hl,
-        badge: this.options?.badge,
-        isolated: this.options?.isolated,
-      });
-      wrapper.setAttribute("data-impossible", "");
-      element.appendChild(wrapper);
-    }
-    /*  if (
-      this._executeRequested &&
-      this.props.grecaptcha &&
-      this.widgetId !== undefined
-    ) {
-      this._executeRequested = false;
-      this.execute();
-    } */
+  private cleanupPromise() {
+    this.currentPromiseResolver = null;
+    this.currentPromiseRejector = null;
   }
 
-  async execAsync() {
-    return new Promise<string>((resolve) => {
-      this.currentPromiseResolver = resolve;
-      this.exec();
-    });
-  }
-
-  onChange(token: string) {
+  private handleChange(token: Token) {
     if (this.options?.onChange) {
       this.options.onChange(token);
     }
 
     if (this.currentPromiseResolver) {
       this.currentPromiseResolver(token);
-      this.currentPromiseResolver = null;
+      this.cleanupPromise();
     }
   }
 
-  getValue() {}
+  private handleExpired() {
+    if (this.options?.onExpired) {
+      this.options?.onExpired();
+    } else {
+      this.handleChange(null);
+    }
+  }
 
-  getWidget() {}
+  private handleErrored() {
+    if (this.options?.onErrored) {
+      this.options?.onErrored();
+    }
+    if (this.currentPromiseRejector) {
+      this.currentPromiseRejector(new Error("Error on ReCaptcha execution"));
+      this.cleanupPromise();
+    }
+  }
 
-  exec() {
+  private render(element: HTMLElement) {
+    const render = this.extractMethod("render");
+    if (render && this.widgetId === undefined) {
+      const wrapper = document.createElement("div");
+      this.widgetId = render(wrapper, {
+        sitekey: this.key,
+        hl: this.options?.hl,
+        type: this.options?.type,
+        size: this.options?.size,
+        theme: this.options?.theme,
+        badge: this.options?.badge,
+        stoken: this.options?.stoken,
+        isolated: this.options?.isolated,
+        tabindex: this.options?.tabindex,
+        "expired-callback": this.handleExpired,
+        "error-callback": this.handleErrored,
+        callback: this.handleChange,
+      });
+      wrapper.setAttribute("data-captcha-initialized", "");
+      element.appendChild(wrapper);
+    }
+    if (this.executeRequested && this.widgetId !== undefined) {
+      this.executeRequested = false;
+      this.execute();
+    }
+  }
+
+  public async executeAsync() {
+    return new Promise<Token>((resolve, reject) => {
+      this.currentPromiseResolver = resolve;
+      this.currentPromiseRejector = reject;
+      this.execute();
+    });
+  }
+
+  public getValue() {
+    const getResponse = this.extractMethod("getResponse");
+    if (getResponse && this.widgetId !== undefined) {
+      return getResponse(this.widgetId) || null;
+    }
+
+    return null;
+  }
+
+  public getWidget() {
+    return this.widgetId;
+  }
+
+  public execute() {
     const execute = this.extractMethod("execute");
     if (execute && this.widgetId !== undefined) {
       return execute(this.widgetId);
     }
+
+    this.executeRequested = true;
   }
 
-  init(element: HTMLElement) {
+  public reset() {
+    const reset = this.extractMethod("reset");
+    if (reset && this.widgetId !== undefined) {
+      return reset(this.widgetId);
+    }
+  }
+
+  public initialize(element: HTMLElement) {
     this.ready(() => {
       this.render(element);
     });
