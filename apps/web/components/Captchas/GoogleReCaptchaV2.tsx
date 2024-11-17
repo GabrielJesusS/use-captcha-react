@@ -3,11 +3,11 @@
 import { type FormEvent, type FormEventHandler, useState } from "react";
 import { useCaptcha } from "use-recaptcha-react";
 import { GoogleReCaptchaV2Provider } from "use-recaptcha-react/providers/googleReCaptchaV2";
-import { sleep } from "../utils/sleep";
+import { sleep } from "../../utils/sleep";
 
 const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_KEY ?? "";
 
-export const Captcha = () => {
+export const GoogleReCaptchaV2 = () => {
   const [isSubmitting, setSubmitting] = useState(false);
   const [ref, { executeAsync, reset, getValue }] = useCaptcha(
     GoogleReCaptchaV2Provider,
