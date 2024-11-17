@@ -1,6 +1,5 @@
 {
   "name": "use-captcha-react",
-  "version": "0.0.1",
   "private": true,
   "scripts": {
     "build": "turbo build",

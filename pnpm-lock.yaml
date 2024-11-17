@@ -32,9 +32,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      use-recaptcha-react:
+      use-captcha-react:
         specifier: workspace:*
-        version: link:../../packages/use-recaptcha-react
+        version: link:../../packages/use-captcha-react
     devDependencies:
       '@next/bundle-analyzer':
         specifier: ^15.0.3
@@ -66,7 +66,7 @@ importers:
 
   packages/typescript-config: {}
 
-  packages/use-recaptcha-react:
+  packages/use-captcha-react:
     dependencies:
       react:
         specifier: ^18

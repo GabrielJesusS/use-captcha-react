@@ -1,7 +1,7 @@
 {
-  "name": "use-recaptcha-react",
-  "version": "0.0.0",
-  "private": true,
+  "name": "use-captcha-react",
+  "version": "0.0.1",
+  "private": false,
   "exports": {
     ".": {
       "types": "./_build/types/source/main/index.d.ts",
