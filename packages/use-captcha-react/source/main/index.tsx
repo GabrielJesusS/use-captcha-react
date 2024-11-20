@@ -19,7 +19,7 @@ type UseCaptchaReturn<Options, Provider extends CaptchaProvider<Options>> = [
 export const useCaptcha = <Options, Provider extends CaptchaProvider<Options>>(
   provider: CaptchaConstructor<Options, Provider>,
   key: string,
-  options?: Options,
+  options?: Provider["options"],
 ): UseCaptchaReturn<Options, Provider> => {
   const element = useRef<HTMLDivElement>(null);
   const captcha = useRef(new provider(key, options));
