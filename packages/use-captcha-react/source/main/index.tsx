@@ -17,12 +17,12 @@ type UseCaptchaReturn<Options, Provider extends CaptchaProvider<Options>> = [
 ];
 
 export const useCaptcha = <Options, Provider extends CaptchaProvider<Options>>(
-  Provider: CaptchaConstructor<Options, Provider>,
+  provider: CaptchaConstructor<Options, Provider>,
   key: string,
   options?: Options,
 ): UseCaptchaReturn<Options, Provider> => {
   const element = useRef<HTMLDivElement>(null);
-  const captcha = useRef(new Provider(key, options));
+  const captcha = useRef(new provider(key, options));
   const hasLoaded = useLoadScript(captcha.current.src, captcha.current.name);
 
   useEffect(() => {
