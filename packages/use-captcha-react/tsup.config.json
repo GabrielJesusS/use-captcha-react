@@ -1,0 +1,14 @@
+{
+  "entry": ["./source/**/*.{ts,tsx}"],
+  "splitting": false,
+  "sourcemap": true,
+  "clean": true,
+  "outDir": "_build/",
+  "format": ["cjs", "esm"],
+  "target": "es2018",
+  "dts": true,
+  "minify": true,
+  "treeshake": true,
+  "skipNodeModulesBundle": true,
+  "ignoreWatch": ["_build", ".turbo", "node_modules", "scripts"]
+}
