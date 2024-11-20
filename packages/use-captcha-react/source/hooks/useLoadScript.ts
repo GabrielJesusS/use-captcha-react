@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from "react";
+import hash from "../utils/hash";
 
 type TScriptStatus = "error" | "success" | "loading";
 
@@ -15,11 +16,7 @@ type UseLoadScriptOptions = {
 
 const scriptManifest = new Map<string, ScriptManifest>();
 
-export const useLoadScript = (
-  src = "",
-  id = "",
-  options: UseLoadScriptOptions = {},
-) => {
+export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
   const hookId = useId();
   const [loaded, setLoaded] = useState(false);
 
@@ -29,10 +26,7 @@ export const useLoadScript = (
       return;
     }
 
-    if (!id) {
-      console.error(new Error("No id provided!"));
-      return;
-    }
+    const id = hash(src).toString();
 
     const scriptMetadata = scriptManifest.get(id);
 
@@ -93,7 +87,7 @@ export const useLoadScript = (
         }
       }
     };
-  }, [src, id, hookId, options]);
+  }, [src, hookId, options]);
 
   return loaded;
 };

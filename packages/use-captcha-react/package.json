@@ -4,51 +4,19 @@
   "private": false,
   "exports": {
     ".": {
-      "types": "./_build/types/source/main/index.d.ts",
-      "require": "./_build/cjs/source/main/index.js",
-      "import": "./_build/es6/source/main/index.js"
+      "types": "./_build/main/index.d.ts",
+      "require": "./_build/main/index.js",
+      "import": "./_build/main/index.mjs"
     },
     "./providers/googleReCaptchaV2": {
-      "types": "./_build/types/source/providers/GoogleReCaptchaV2Provider.d.ts",
-      "require": "./_build/cjs/source/providers/GoogleReCaptchaV2Provider.js",
-      "import": "./_build/es6/source/providers/GoogleReCaptchaV2Provider.js"
+      "types": "./_build/providers/GoogleReCaptchaV2Provider.d.ts",
+      "require": "./_build/providers/GoogleReCaptchaV2Provider.js",
+      "import": "./_build/providers/GoogleReCaptchaV2Provider.mjs"
     }
   },
-  "size-limit": [
-    {
-      "name": "cjs main",
-      "path": "./_build/cjs/source/main/*.js",
-      "gzip": true
-    },
-    {
-      "name": "cjs all",
-      "path": "./_build/cjs/source/**/*.js",
-      "gzip": true
-    },
-    {
-      "name": "cjs providers",
-      "path": "./_build/cjs/source/providers/*.js",
-      "gzip": true
-    },
-    {
-      "name": "esm all",
-      "path": "./_build/es6/source/**/*.js",
-      "gzip": true
-    },
-    {
-      "name": "esm main",
-      "path": "./_build/es6/source/main/*.js",
-      "gzip": true
-    },
-    {
-      "name": "esm providers",
-      "path": "./_build/es6/source/providers/*.js",
-      "gzip": true
-    }
-  ],
   "scripts": {
-    "dev": "swc ./source -d ./_build/es6 -C module.type=es6 -w & swc ./source -d ./_build/cjs -C module.type=commonjs -w & tsc -w --pretty --skipLibCheck",
-    "build": "swc ./source -d ./_build/es6 -C module.type=es6 & swc ./source -d ./_build/cjs -C module.type=commonjs & tsc --pretty --skipLibCheck",
+    "dev": "tsup --watch",
+    "build": "tsup",
     "size": "size-limit",
     "size:why": "size-limit --why"
   },
@@ -56,11 +24,10 @@
     "@repo/typescript-config": "workspace:*",
     "@size-limit/esbuild-why": "^11.1.6",
     "@size-limit/preset-small-lib": "^11.1.6",
-    "@swc/cli": "^0.5.0",
-    "@swc/core": "^1.9.2",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "size-limit": "^11.1.6",
+    "tsup": "^8.3.5",
     "typescript": "5.5.4"
   },
   "peerDependencies": {

@@ -4,5 +4,11 @@
       "mode": "auto"
     }
   ],
+  "json.schemas": [
+    {
+      "url": "https://cdn.jsdelivr.net/npm/tsup/schema.json",
+      "fileMatch": ["package.json", "tsup.config.json"]
+    }
+  ],
   "cSpell.words": ["grecaptcha", "sitekey", "stoken"]
 }

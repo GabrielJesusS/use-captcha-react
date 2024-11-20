@@ -7,7 +7,13 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [".next/*", "postcss.config.js", "_dist/*"]
+    "ignore": [
+      ".next/*",
+      "postcss.config.js",
+      "_dist/*",
+      ".turbo/*",
+      "_build/*"
+    ]
   },
   "formatter": {
     "enabled": true,
