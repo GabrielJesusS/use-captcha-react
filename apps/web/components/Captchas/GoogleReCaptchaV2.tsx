@@ -1,8 +1,8 @@
 "use client";
 
 import { type FormEvent, type FormEventHandler, useState } from "react";
-import { useCaptcha } from "use-recaptcha-react";
-import { GoogleReCaptchaV2Provider } from "use-recaptcha-react/providers/googleReCaptchaV2";
+import { useCaptcha } from "use-captcha-react";
+import { GoogleReCaptchaV2Provider } from "use-captcha-react/providers/googleReCaptchaV2";
 import { sleep } from "../../utils/sleep";
 
 const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_KEY ?? "";

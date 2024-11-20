@@ -1,5 +1,5 @@
 {
-  "name": "use-recaptcha-react",
+  "name": "use-captcha-react",
   "private": true,
   "scripts": {
     "build": "turbo build",
