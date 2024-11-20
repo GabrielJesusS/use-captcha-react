@@ -21,7 +21,6 @@
     "size:why": "size-limit --why"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
     "@size-limit/esbuild-why": "^11.1.6",
     "@size-limit/preset-small-lib": "^11.1.6",
     "@types/react": "^18",
