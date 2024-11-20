@@ -1,11 +1,7 @@
 import { type RefObject, useCallback, useEffect, useRef } from "react";
+import type { CaptchaConstructor } from "../@types/CaptchaConstructor";
 import type { CaptchaProvider } from "../@types/CaptchaProvider";
 import { useLoadScript } from "../hooks/useLoadScript";
-
-type CaptchaConstructor<T = undefined> = new (
-  key: string,
-  options?: T,
-) => CaptchaProvider<T>;
 
 type UseCaptchaMethods = {
   execute: () => void;
@@ -14,13 +10,17 @@ type UseCaptchaMethods = {
   executeAsync: () => Promise<string | null>;
 };
 
-type UseCaptchaReturn = [RefObject<HTMLDivElement>, UseCaptchaMethods];
+type UseCaptchaReturn<Options, Provider extends CaptchaProvider<Options>> = [
+  RefObject<HTMLDivElement>,
+  UseCaptchaMethods,
+  RefObject<Provider>,
+];
 
-export const useCaptcha = <T,>(
-  Provider: CaptchaConstructor<T>,
+export const useCaptcha = <Options, Provider extends CaptchaProvider<Options>>(
+  Provider: CaptchaConstructor<Options, Provider>,
   key: string,
-  options?: T,
-): UseCaptchaReturn => {
+  options?: Options,
+): UseCaptchaReturn<Options, Provider> => {
   const element = useRef<HTMLDivElement>(null);
   const captcha = useRef(new Provider(key, options));
   const hasLoaded = useLoadScript(captcha.current.src, captcha.current.name);
@@ -54,5 +54,5 @@ export const useCaptcha = <T,>(
     return await captcha.current.executeAsync();
   }, []);
 
-  return [element, { execute, executeAsync, getValue, reset }];
+  return [element, { execute, executeAsync, getValue, reset }, captcha];
 };
