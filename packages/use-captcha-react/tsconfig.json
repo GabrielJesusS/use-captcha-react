@@ -1,6 +1,17 @@
 {
-  "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
+    "esModuleInterop": true,
+    "incremental": false,
+    "isolatedModules": true,
+    "lib": ["es2022", "DOM", "DOM.Iterable"],
+    "module": "NodeNext",
+    "moduleDetection": "force",
+    "moduleResolution": "NodeNext",
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "target": "ES2018",
+    "jsx": "react-jsx",
     "outDir": "_build/types/source",
     "allowJs": true,
     "declaration": true,
