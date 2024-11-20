@@ -5,7 +5,8 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "biome check .",
-    "lint:fix": "biome check . --write"
+    "lint:fix": "biome check . --write",
+    "publish-packages": "env-cmd turbo run build lint && changeset version && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -16,5 +17,9 @@
   "packageManager": "pnpm@8.15.6",
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.27.10",
+    "env-cmd": "^10.1.0"
   }
 }
