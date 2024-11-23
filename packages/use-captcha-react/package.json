@@ -2,6 +2,9 @@
   "name": "use-captcha-react",
   "version": "0.0.1",
   "private": false,
+  "main": "./_build/main/index.js",
+  "types": "./_build/main/index.d.ts",
+  "module": "./_build/main/index.mjs",
   "exports": {
     ".": {
       "types": "./_build/main/index.d.ts",
