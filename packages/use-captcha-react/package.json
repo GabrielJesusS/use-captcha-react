@@ -1,6 +1,6 @@
 {
   "name": "use-captcha-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "main": "./_build/main/index.js",
   "types": "./_build/main/index.d.ts",
