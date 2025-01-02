@@ -70,6 +70,10 @@ export class GoogleReCaptchaV2Provider
   private currentPromiseRejector: PromiseRejector | null = null;
 
   constructor(key: string, options?: GoogleReCaptchaV2Options) {
+    if (!key) {
+      throw new Error("You must provide an valid key!");
+    }
+
     this.key = key;
     this.options = options;
     this.handleChange = this.handleChange.bind(this);
