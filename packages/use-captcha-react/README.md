@@ -111,3 +111,5 @@ The `useCaptcha` hook manages scripts on the page to ensure no duplicates are ad
 The `use-captcha-react` package was designed to simplify captcha integration with React's modern hook standards. It is inspired by the [react-google-recaptcha](https://www.npmjs.com/package/react-google-recaptcha) library created by [Hugo Dozois](https://github.com/dozoisch).
 
 In addition to its hook-based approach, the generic nature of this wrapper allows developers to integrate various captcha providers in a flexible and configurable manner, all within the same library.
+
+Created by [Gabriel Jesus](https://github.com/GabrielJesusS).
