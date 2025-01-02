@@ -1,7 +1,8 @@
 import type { CaptchaProvider } from "../@types/CaptchaProvider";
 
 declare global {
-  var grecaptcha:
+  var onloadTurnstileCallback: () => void;
+  var turnstile:
     | {
         render: (
           elm: HTMLElement,
@@ -15,20 +16,24 @@ declare global {
     | undefined;
 }
 
-type GoogleReCaptchaV2Methods =
+type CloudflareTurnstileMethods =
   | "render"
   | "execute"
   | "reset"
   | "getResponse"
   | "ready";
 
-type GoogleReCaptchaV2Theme = "light" | "dark";
+type CloudflareTurnstileTheme = "light" | "dark" | "auto";
 
-type GoogleReCaptchaV2Size = "normal" | "compact" | "invisible";
+type CloudflareTurnstileSize = "normal" | "compact" | "flexible";
 
-type GoogleReCaptchaV2Type = "image" | "audio";
+type CloudflareTurnstileMode = "render" | "execute";
 
-type GoogleReCaptchaV2BadgePosition = "bottomright" | "bottomleft" | "inline";
+type CloudflareTurnstileRetry = "auto" | "never";
+
+type CloudflareTurnstileAppearance = "always" | "execute" | "interaction-only";
+
+type CloudflareTurnstileRefresh = "auto" | "never" | "manual";
 
 type Token = string | null;
 
@@ -36,30 +41,35 @@ type PromiseResolver = (value: Token | PromiseLike<Token>) => void;
 
 type PromiseRejector = (error: Error | PromiseLike<Error>) => void;
 
-type GoogleReCaptchaV2Options = {
-  hl?: string;
-  stoken?: unknown;
+type CloudflareTurnstileOptions = {
+  execution?: CloudflareTurnstileMode;
+  theme?: CloudflareTurnstileTheme;
+  language?: string;
   tabindex?: number;
-  isolated?: boolean;
-  type?: GoogleReCaptchaV2Type;
-  size?: GoogleReCaptchaV2Size;
-  theme?: GoogleReCaptchaV2Theme;
-  badge?: GoogleReCaptchaV2BadgePosition;
+  size?: CloudflareTurnstileSize;
+  retry?: CloudflareTurnstileRetry;
+  retryInterval?: number;
+  refreshExpired?: CloudflareTurnstileRefresh;
+  refreshTimeout?: CloudflareTurnstileRefresh;
+  appearance?: CloudflareTurnstileAppearance;
+  feedbackEnabled?: boolean;
   onChange?: (token: Token) => void;
   onExpired?: () => void;
   onErrored?: () => void;
+  onTimouted?: () => void;
 };
 
-export class GoogleReCaptchaV2Provider
-  implements CaptchaProvider<GoogleReCaptchaV2Options>
+export class CloudflareTurnstileProvider
+  implements CaptchaProvider<CloudflareTurnstileOptions>
 {
-  public name = "GoogleReCaptchaV2";
+  public name = "CloudflareTurnstile";
 
-  public src = "https://www.google.com/recaptcha/api.js?render=explicit";
+  public src =
+    "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback";
 
   public key: string;
 
-  public options?: GoogleReCaptchaV2Options | undefined;
+  public options?: CloudflareTurnstileOptions | undefined;
 
   private widgetId?: string = undefined;
 
@@ -69,7 +79,7 @@ export class GoogleReCaptchaV2Provider
 
   private currentPromiseRejector: PromiseRejector | null = null;
 
-  constructor(key: string, options?: GoogleReCaptchaV2Options) {
+  constructor(key: string, options?: CloudflareTurnstileOptions) {
     if (!key) {
       throw new Error("You must provide an valid key!");
     }
@@ -78,23 +88,23 @@ export class GoogleReCaptchaV2Provider
     this.options = options;
     this.handleChange = this.handleChange.bind(this);
     this.handleErrored = this.handleErrored.bind(this);
+    this.handleTimeouted = this.handleTimeouted.bind(this);
     this.handleExpired = this.handleExpired.bind(this);
     this.cleanupPromise = this.cleanupPromise.bind(this);
   }
 
-  private extractMethod<T extends GoogleReCaptchaV2Methods>(method: T) {
-    if (typeof grecaptcha === "undefined") {
+  private extractMethod<T extends CloudflareTurnstileMethods>(method: T) {
+    if (typeof turnstile === "undefined") {
       return null;
     }
 
-    return grecaptcha[method];
+    return turnstile[method];
   }
 
   private ready(cb: () => void) {
-    const onReady = this.extractMethod("ready");
-    if (onReady) {
-      onReady(cb);
-    }
+    window.onloadTurnstileCallback = () => {
+      cb();
+    };
   }
 
   private cleanupPromise() {
@@ -121,12 +131,20 @@ export class GoogleReCaptchaV2Provider
     }
   }
 
+  private handleTimeouted() {
+    if (this.options?.onTimouted) {
+      this.options?.onTimouted();
+    } else {
+      this.handleChange(null);
+    }
+  }
+
   private handleErrored() {
     if (this.options?.onErrored) {
       this.options?.onErrored();
     }
     if (this.currentPromiseRejector) {
-      this.currentPromiseRejector(new Error("Error on ReCaptcha execution"));
+      this.currentPromiseRejector(new Error("Error on Turnstile execution"));
       this.cleanupPromise();
     }
   }
@@ -137,14 +155,18 @@ export class GoogleReCaptchaV2Provider
       const wrapper = document.createElement("div");
       this.widgetId = render(wrapper, {
         sitekey: this.key,
-        hl: this.options?.hl,
-        type: this.options?.type,
+        language: this.options?.language,
         size: this.options?.size,
         theme: this.options?.theme,
-        badge: this.options?.badge,
-        stoken: this.options?.stoken,
-        isolated: this.options?.isolated,
         tabindex: this.options?.tabindex,
+        appearance: this.options?.appearance,
+        execution: this.options?.execution,
+        retry: this.options?.retry,
+        retryInterval: this.options?.retryInterval,
+        refreshExpired: this.options?.refreshExpired,
+        refreshTimeout: this.options?.refreshTimeout,
+        feedbackEnabled: this.options?.feedbackEnabled,
+        "timeout-callback": this.handleTimeouted,
         "expired-callback": this.handleExpired,
         "error-callback": this.handleErrored,
         callback: this.handleChange,

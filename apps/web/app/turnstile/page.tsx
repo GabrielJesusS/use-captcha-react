@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { GoogleReCaptchaV2 } from "../../components/Captchas/GoogleReCaptchaV2";
+import { CloudflareTurnstile } from "../../components/Captchas/CloudflareTurnstile";
 
-export default function GoogleV2() {
+export default function Turnstile() {
   return (
     <main className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm space-y-4">
-        <GoogleReCaptchaV2 />
+        <CloudflareTurnstile />
         <div className="text-center">
           <Link
             href="/"

@@ -15,6 +15,11 @@ export default function Home() {
             description={"Test the Google reCAPTCHA v2"}
             link="/googleV2"
           />
+          <CaptchaCard
+            title={"Cloudflare Turnstile"}
+            description={"Test the Cloudflare Turnstile"}
+            link="/turnstile"
+          />
         </div>
       </div>
     </main>

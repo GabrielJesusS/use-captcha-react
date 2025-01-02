@@ -26,6 +26,8 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       return;
     }
 
+    if (loaded) return;
+
     const id = hash(src).toString();
 
     const scriptMetadata = scriptManifest.get(id);
@@ -75,7 +77,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
     return () => {
       const scriptMetadata = scriptManifest.get(id);
 
-      if (scriptMetadata) {
+      if (scriptMetadata && scriptMetadata.consumers.size !== 0 && loaded) {
         scriptMetadata.consumers.delete(hookId);
 
         if (scriptMetadata.consumers.size !== 0) return;
@@ -87,7 +89,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
         }
       }
     };
-  }, [src, hookId, options]);
+  }, [src, hookId, options, loaded]);
 
   return loaded;
 };
