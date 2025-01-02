@@ -15,6 +15,11 @@
       "types": "./_build/providers/GoogleReCaptchaV2Provider.d.ts",
       "require": "./_build/providers/GoogleReCaptchaV2Provider.js",
       "import": "./_build/providers/GoogleReCaptchaV2Provider.mjs"
+    },
+    "./providers/cloudflareTurnstile": {
+      "types": "./_build/providers/CloudflareTurnstileProvider.d.ts",
+      "require": "./_build/providers/CloudflareTurnstileProvider.js",
+      "import": "./_build/providers/CloudflareTurnstileProvider.mjs"
     }
   },
   "scripts": {
