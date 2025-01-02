@@ -28,6 +28,7 @@ build
 dist
 _dist/
 _build/
+_build/**/*.map
 
 
 # Debug

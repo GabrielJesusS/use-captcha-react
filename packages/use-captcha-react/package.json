@@ -1,6 +1,25 @@
 {
   "name": "use-captcha-react",
-  "version": "0.0.2",
+  "version": "0.0.3",
+  "author": {
+    "email": "gabrieljesus9221@gmail.com",
+    "name": "Gabriel Jesus",
+    "url": "https://github.com/GabrielJesusS"
+  },
+  "license": "MIT",
+  "description": "React hook for captcha providers",
+  "keywords": [
+    "react",
+    "captcha",
+    "reCaptcha",
+    "google",
+    "turnstile",
+    "providers",
+    "googleReCaptcha",
+    "form",
+    "validation",
+    "bot"
+  ],
   "private": false,
   "main": "./_build/main/index.js",
   "types": "./_build/main/index.d.ts",
