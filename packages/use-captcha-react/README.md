@@ -1,5 +1,7 @@
 # use-captcha-react
 
+A generic wrapper for using captcha scripts on the client side in React applications.
+
 [![npm version](https://badge.fury.io/js/use-captcha-react.svg)](https://badge.fury.io/js/use-captcha-react)
 
 <p align="center">
@@ -73,7 +75,7 @@ return (
 
 ### `useCaptcha` Hook
 
-The `useCaptcha` hook is the main entry point for using captchas with this library. It takes a `provider` as input and abstracts its initialization and execution methods, offering a more "plug-and-play" experience. 
+The `useCaptcha` hook is the main entry point for using captchas with this library. It takes a `provider` as input and abstracts its initialization and execution methods, offering a more "plug-and-play" experience.
 
 This hook not only simplifies captcha usage but also exposes the provider instance, allowing developers to directly manipulate it or create custom methods if needed.
 
@@ -106,7 +108,6 @@ The `useCaptcha` hook manages scripts on the page to ensure no duplicates are ad
 
 ## Motivation
 
-The `use-captcha-react` package was designed to simplify captcha integration with React's modern hook standards. It is inspired by the [react-google-recaptcha](https://www.npmjs.com/package/react-google-recaptcha) library created by [Hugo Dozois](https://github.com/dozoisch). 
+The `use-captcha-react` package was designed to simplify captcha integration with React's modern hook standards. It is inspired by the [react-google-recaptcha](https://www.npmjs.com/package/react-google-recaptcha) library created by [Hugo Dozois](https://github.com/dozoisch).
 
 In addition to its hook-based approach, the generic nature of this wrapper allows developers to integrate various captcha providers in a flexible and configurable manner, all within the same library.
-
