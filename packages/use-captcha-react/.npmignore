@@ -1,1 +1,4 @@
 _build/**/*.map
+.turbo/
+source/
+scripts/
