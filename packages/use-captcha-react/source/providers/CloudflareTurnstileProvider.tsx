@@ -56,7 +56,7 @@ type CloudflareTurnstileOptions = {
   onChange?: (token: Token) => void;
   onExpired?: () => void;
   onErrored?: () => void;
-  onTimouted?: () => void;
+  onTimeout?: () => void;
 };
 
 export class CloudflareTurnstileProvider
@@ -88,7 +88,7 @@ export class CloudflareTurnstileProvider
     this.options = options;
     this.handleChange = this.handleChange.bind(this);
     this.handleErrored = this.handleErrored.bind(this);
-    this.handleTimeouted = this.handleTimeouted.bind(this);
+    this.handleTimeout = this.handleTimeout.bind(this);
     this.handleExpired = this.handleExpired.bind(this);
     this.cleanupPromise = this.cleanupPromise.bind(this);
   }
@@ -97,6 +97,8 @@ export class CloudflareTurnstileProvider
     if (typeof turnstile === "undefined") {
       return null;
     }
+
+    console.log(turnstile);
 
     return turnstile[method];
   }
@@ -131,9 +133,9 @@ export class CloudflareTurnstileProvider
     }
   }
 
-  private handleTimeouted() {
-    if (this.options?.onTimouted) {
-      this.options?.onTimouted();
+  private handleTimeout() {
+    if (this.options?.onTimeout) {
+      this.options?.onTimeout();
     } else {
       this.handleChange(null);
     }
@@ -166,7 +168,7 @@ export class CloudflareTurnstileProvider
         refreshExpired: this.options?.refreshExpired,
         refreshTimeout: this.options?.refreshTimeout,
         feedbackEnabled: this.options?.feedbackEnabled,
-        "timeout-callback": this.handleTimeouted,
+        "timeout-callback": this.handleTimeout,
         "expired-callback": this.handleExpired,
         "error-callback": this.handleErrored,
         callback: this.handleChange,
