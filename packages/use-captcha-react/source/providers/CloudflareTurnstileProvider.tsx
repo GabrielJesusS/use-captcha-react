@@ -12,6 +12,7 @@ declare global {
         reset: (widgetId: string) => void;
         getResponse: (widgetId: string) => string;
         ready: (cb: () => void) => void;
+        remove: (widgetId: string) => void;
       }
     | undefined;
 }
@@ -21,7 +22,8 @@ type CloudflareTurnstileMethods =
   | "execute"
   | "reset"
   | "getResponse"
-  | "ready";
+  | "ready"
+  | "remove";
 
 type CloudflareTurnstileTheme = "light" | "dark" | "auto";
 
@@ -97,8 +99,6 @@ export class CloudflareTurnstileProvider
     if (typeof turnstile === "undefined") {
       return null;
     }
-
-    console.log(turnstile);
 
     return turnstile[method];
   }
@@ -219,9 +219,21 @@ export class CloudflareTurnstileProvider
     }
   }
 
+  public remove() {
+    const remove = this.extractMethod("remove");
+    if (remove && this.widgetId !== undefined) {
+      return remove(this.widgetId);
+    }
+  }
+
   public initialize(element: HTMLElement) {
-    this.ready(() => {
-      this.render(element);
-    });
+    if (typeof turnstile === "undefined") {
+      this.ready(() => {
+        this.render(element);
+      });
+      return;
+    }
+
+    this.render(element);
   }
 }
