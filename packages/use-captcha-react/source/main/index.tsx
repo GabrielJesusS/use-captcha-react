@@ -1,3 +1,4 @@
+export * from "../@types/CaptchaProvider";
 import { type RefObject, useCallback, useEffect, useRef } from "react";
 import type { CaptchaConstructor } from "../@types/CaptchaConstructor";
 import type { CaptchaProvider } from "../@types/CaptchaProvider";
