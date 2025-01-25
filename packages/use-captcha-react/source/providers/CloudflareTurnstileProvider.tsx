@@ -12,6 +12,7 @@ declare global {
         reset: (widgetId: string) => void;
         getResponse: (widgetId: string) => string;
         ready: (cb: () => void) => void;
+        remove: (widgetId: string) => void;
       }
     | undefined;
 }
@@ -21,7 +22,8 @@ type CloudflareTurnstileMethods =
   | "execute"
   | "reset"
   | "getResponse"
-  | "ready";
+  | "ready"
+  | "remove";
 
 type CloudflareTurnstileTheme = "light" | "dark" | "auto";
 
@@ -56,7 +58,7 @@ type CloudflareTurnstileOptions = {
   onChange?: (token: Token) => void;
   onExpired?: () => void;
   onErrored?: () => void;
-  onTimouted?: () => void;
+  onTimeout?: () => void;
 };
 
 export class CloudflareTurnstileProvider
@@ -66,6 +68,8 @@ export class CloudflareTurnstileProvider
 
   public src =
     "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback";
+
+  public globalName = "turnstile";
 
   public key: string;
 
@@ -88,7 +92,7 @@ export class CloudflareTurnstileProvider
     this.options = options;
     this.handleChange = this.handleChange.bind(this);
     this.handleErrored = this.handleErrored.bind(this);
-    this.handleTimeouted = this.handleTimeouted.bind(this);
+    this.handleTimeout = this.handleTimeout.bind(this);
     this.handleExpired = this.handleExpired.bind(this);
     this.cleanupPromise = this.cleanupPromise.bind(this);
   }
@@ -131,9 +135,9 @@ export class CloudflareTurnstileProvider
     }
   }
 
-  private handleTimeouted() {
-    if (this.options?.onTimouted) {
-      this.options?.onTimouted();
+  private handleTimeout() {
+    if (this.options?.onTimeout) {
+      this.options?.onTimeout();
     } else {
       this.handleChange(null);
     }
@@ -166,7 +170,7 @@ export class CloudflareTurnstileProvider
         refreshExpired: this.options?.refreshExpired,
         refreshTimeout: this.options?.refreshTimeout,
         feedbackEnabled: this.options?.feedbackEnabled,
-        "timeout-callback": this.handleTimeouted,
+        "timeout-callback": this.handleTimeout,
         "expired-callback": this.handleExpired,
         "error-callback": this.handleErrored,
         callback: this.handleChange,
@@ -217,9 +221,21 @@ export class CloudflareTurnstileProvider
     }
   }
 
+  public remove() {
+    const remove = this.extractMethod("remove");
+    if (remove && this.widgetId !== undefined) {
+      return remove(this.widgetId);
+    }
+  }
+
   public initialize(element: HTMLElement) {
-    this.ready(() => {
-      this.render(element);
-    });
+    if (typeof turnstile === "undefined") {
+      this.ready(() => {
+        this.render(element);
+      });
+      return;
+    }
+
+    this.render(element);
   }
 }

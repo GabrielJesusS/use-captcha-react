@@ -1,3 +1,4 @@
+export * from "../@types/CaptchaProvider";
 import { type RefObject, useCallback, useEffect, useRef } from "react";
 import type { CaptchaConstructor } from "../@types/CaptchaConstructor";
 import type { CaptchaProvider } from "../@types/CaptchaProvider";
@@ -23,7 +24,9 @@ export const useCaptcha = <Options, Provider extends CaptchaProvider<Options>>(
 ): UseCaptchaReturn<Options, Provider> => {
   const element = useRef<HTMLDivElement>(null);
   const captcha = useRef(new provider(key, options));
-  const hasLoaded = useLoadScript(captcha.current.src);
+  const hasLoaded = useLoadScript(captcha.current.src, {
+    globalVariables: [captcha.current.globalName],
+  });
 
   useEffect(() => {
     if (!element.current || !hasLoaded) return;

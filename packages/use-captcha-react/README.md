@@ -79,28 +79,11 @@ The `useCaptcha` hook is the main entry point for using captchas with this libra
 
 This hook not only simplifies captcha usage but also exposes the provider instance, allowing developers to directly manipulate it or create custom methods if needed.
 
-### Provider Class
-
-The `provider` is a class that defines the captcha to be used. It contains the following properties and methods:
-
-| Method         | Description                                                      |
-|----------------|------------------------------------------------------------------|
-| `name`         | The name of the provider.                                        |
-| `src`          | The URL from which the captcha script will be loaded.            |
-| `options?`     | The configuration options for the captcha (varies by provider). |
-| `execute`      | Executes the captcha process.                                    |
-| `reset`        | Resets the captcha.                                              |
-| `executeAsync` | Executes the captcha asynchronously, returning a `Promise` with the captcha token or `null`. |
-| `getWidget`    | Retrieves the widget identifier, if applicable.                  |
-| `getValue`     | Gets the current captcha value.                                  |
-| `initialize`   | Initializes the captcha with the given DOM element.             |
-
-These properties and methods allow for a highly flexible implementation, supporting both predefined and custom captcha integrations.
-
 ### Extending Captcha Functionality
 
 The captcha provider can include additional methods if the developer wants to expose more functionality. While the default interface covers the core methods, you can extend it to suit your specific requirements or to leverage unique features of your chosen captcha provider.
 
+Learn more into the [create a provider](/docs/create-a-provider.md) dedicated page!
 
 ## Note
 

@@ -10,7 +10,7 @@
     "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "strict": true,
-    "target": "ES2018",
+    "target": "ES2016",
     "jsx": "react-jsx",
     "outDir": "_build/types/source",
     "allowJs": true,

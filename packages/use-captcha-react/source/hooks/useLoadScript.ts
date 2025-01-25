@@ -1,17 +1,17 @@
 import { useEffect, useId, useState } from "react";
 import hash from "../utils/hash";
 
-type TScriptStatus = "error" | "success" | "loading";
-
 type ScriptManifest = {
   id: string;
   consumers: Set<string>;
-  status: TScriptStatus;
   script: HTMLScriptElement | null;
+  loaded: boolean;
+  errored: boolean;
 };
 
 type UseLoadScriptOptions = {
   onUnload?: () => void;
+  globalVariables?: string[];
 };
 
 const scriptManifest = new Map<string, ScriptManifest>();
@@ -26,20 +26,32 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       return;
     }
 
-    if (loaded) return;
+    function checkGlobalVariables() {
+      if (!options.globalVariables) return true;
+
+      return options.globalVariables.every((variable) => {
+        // biome-ignore lint/suspicious/noExplicitAny: in this case i need to check the variable in the global scope
+        return typeof (<any>window)[variable] !== "undefined";
+      });
+    }
 
     const id = hash(src).toString();
 
     const scriptMetadata = scriptManifest.get(id);
 
-    if (scriptMetadata) {
+    if (scriptMetadata?.loaded && loaded && checkGlobalVariables()) {
+      return;
+    }
+
+    if (scriptMetadata?.loaded && checkGlobalVariables()) {
       scriptMetadata.consumers.add(hookId);
       setLoaded(true);
     } else {
       const script = document.createElement("script");
 
       scriptManifest.set(id, {
-        status: "loading",
+        loaded: false,
+        errored: false,
         consumers: new Set(),
         script,
         id,
@@ -52,7 +64,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
         const data = scriptManifest.get(id);
 
         if (data) {
-          data.status = "success";
+          data.loaded = true;
           data.consumers.add(hookId);
         }
 
@@ -64,7 +76,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
 
         if (data) {
           data.consumers.add(hookId);
-          data.status = "error";
+          data.loaded = false;
         }
 
         console.error("Failed to load script", err);
