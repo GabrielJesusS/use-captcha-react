@@ -24,7 +24,9 @@ export const useCaptcha = <Options, Provider extends CaptchaProvider<Options>>(
 ): UseCaptchaReturn<Options, Provider> => {
   const element = useRef<HTMLDivElement>(null);
   const captcha = useRef(new provider(key, options));
-  const hasLoaded = useLoadScript(captcha.current.src);
+  const hasLoaded = useLoadScript(captcha.current.src, {
+    globalVariables: [captcha.current.globalName],
+  });
 
   useEffect(() => {
     if (!element.current || !hasLoaded) return;

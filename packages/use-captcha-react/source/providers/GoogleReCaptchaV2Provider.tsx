@@ -57,6 +57,8 @@ export class GoogleReCaptchaV2Provider
 
   public src = "https://www.google.com/recaptcha/api.js?render=explicit";
 
+  public globalName = "grecaptcha";
+
   public key: string;
 
   public options?: GoogleReCaptchaV2Options | undefined;

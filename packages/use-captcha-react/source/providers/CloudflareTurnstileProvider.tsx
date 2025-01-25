@@ -69,6 +69,8 @@ export class CloudflareTurnstileProvider
   public src =
     "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback";
 
+  public globalName = "turnstile";
+
   public key: string;
 
   public options?: CloudflareTurnstileOptions | undefined;

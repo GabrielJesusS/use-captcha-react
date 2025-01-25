@@ -1,6 +1,7 @@
 export interface CaptchaProvider<Options> {
   name: string;
   src: string;
+  globalName: string;
   options?: Options;
   execute: () => void;
   reset: () => void;
