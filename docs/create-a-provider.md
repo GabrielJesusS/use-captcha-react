@@ -13,6 +13,7 @@ The `Provider` is a class that defines the captcha service to be used. It includ
 | Property/Method | Description                                                                 |
 |-----------------|-----------------------------------------------------------------------------|
 | `name`          | The name of the provider.                                                  |
+| `globalName`    | The name of global variable for provider methods                           |
 | `src`           | The URL of the captcha script to be loaded.                                |
 | `options?`      | Optional configuration options for the captcha (varies by provider).       |
 | `execute`       | Executes the captcha process.                                              |
