@@ -2,3 +2,4 @@ _build/**/*.map
 .turbo/
 source/
 scripts/
+.size-limit.cjs
