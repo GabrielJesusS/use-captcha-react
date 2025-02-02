@@ -21,24 +21,24 @@
     "bot"
   ],
   "private": false,
-  "main": "./_build/main/index.js",
-  "types": "./_build/main/index.d.ts",
-  "module": "./_build/main/index.mjs",
+  "main": "./_build/index.js",
+  "types": "./_build/index.d.ts",
+  "module": "./_build/index.mjs",
   "exports": {
     ".": {
-      "types": "./_build/main/index.d.ts",
-      "require": "./_build/main/index.js",
-      "import": "./_build/main/index.mjs"
+      "types": "./_build/index.d.ts",
+      "require": "./_build/index.js",
+      "import": "./_build/index.mjs"
     },
-    "./providers/googleReCaptchaV2": {
-      "types": "./_build/providers/GoogleReCaptchaV2Provider.d.ts",
-      "require": "./_build/providers/GoogleReCaptchaV2Provider.js",
-      "import": "./_build/providers/GoogleReCaptchaV2Provider.mjs"
+    "./googleReCaptchaV2": {
+      "types": "./_build/googleV2.d.ts",
+      "require": "./_build/googleV2.js",
+      "import": "./_build/googleV2.mjs"
     },
-    "./providers/cloudflareTurnstile": {
-      "types": "./_build/providers/CloudflareTurnstileProvider.d.ts",
-      "require": "./_build/providers/CloudflareTurnstileProvider.js",
-      "import": "./_build/providers/CloudflareTurnstileProvider.mjs"
+    "./cloudflareTurnstile": {
+      "types": "./_build/turnstile.d.ts",
+      "require": "./_build/turnstile.js",
+      "import": "./_build/turnstile.mjs"
     }
   },
   "scripts": {

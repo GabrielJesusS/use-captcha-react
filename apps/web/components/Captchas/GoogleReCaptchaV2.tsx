@@ -2,7 +2,7 @@
 
 import { type FormEvent, type FormEventHandler, useState } from "react";
 import { useCaptcha } from "use-captcha-react";
-import { GoogleReCaptchaV2Provider } from "use-captcha-react/providers/googleReCaptchaV2";
+import { GoogleReCaptchaV2Provider } from "use-captcha-react/googleReCaptchaV2";
 import { sleep } from "../../utils/sleep";
 
 const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_KEY ?? "";
