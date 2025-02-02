@@ -4,3 +4,4 @@ source/
 scripts/
 .size-limit.cjs
 tsconfig.json
+tsup.config.json
