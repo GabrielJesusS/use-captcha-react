@@ -11,7 +11,7 @@
   "format": ["cjs", "esm"],
   "target": "es2018",
   "dts": true,
-  "minify": false,
+  "minify": true,
   "treeshake": true,
   "skipNodeModulesBundle": true,
   "ignoreWatch": ["_build", ".turbo", "node_modules", "scripts"]
