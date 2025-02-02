@@ -2,7 +2,7 @@
 
 import { type FormEvent, type FormEventHandler, useState } from "react";
 import { useCaptcha } from "use-captcha-react";
-import { CloudflareTurnstileProvider } from "use-captcha-react/providers/cloudflareTurnstile";
+import { CloudflareTurnstileProvider } from "use-captcha-react/cloudflareTurnstile";
 import { sleep } from "../../utils/sleep";
 
 const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? "";

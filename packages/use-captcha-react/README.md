@@ -83,7 +83,7 @@ This hook not only simplifies captcha usage but also exposes the provider instan
 
 The captcha provider can include additional methods if the developer wants to expose more functionality. While the default interface covers the core methods, you can extend it to suit your specific requirements or to leverage unique features of your chosen captcha provider.
 
-Learn more into the [create a provider](/docs/create-a-provider.md) dedicated page!
+Learn more into the [create a provider](https://github.com/GabrielJesusS/use-captcha-react/blob/main/docs/create-a-provider.md) dedicated page!
 
 ## Note
 
