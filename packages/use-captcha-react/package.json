@@ -6,6 +6,10 @@
     "name": "Gabriel Jesus",
     "url": "https://github.com/GabrielJesusS"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GabrielJesusS/use-captcha-react/tree/main"
+  },
   "license": "MIT",
   "description": "React hook for captcha providers",
   "keywords": [
