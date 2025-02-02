@@ -3,3 +3,4 @@ _build/**/*.map
 source/
 scripts/
 .size-limit.cjs
+tsconfig.json
