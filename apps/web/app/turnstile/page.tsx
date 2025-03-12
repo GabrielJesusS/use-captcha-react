@@ -1,7 +1,10 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CloudflareTurnstile } from "../../components/Captchas/CloudflareTurnstile";
+
+export const metadata: Metadata = {
+  title: "Turnstile",
+};
 
 export default function Turnstile() {
   return (

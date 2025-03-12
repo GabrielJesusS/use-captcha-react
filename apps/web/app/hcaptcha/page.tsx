@@ -1,7 +1,10 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import { HCaptcha } from "../../components/Captchas/HCaptcha";
+
+export const metadata: Metadata = {
+  title: "HCaptcha",
+};
 
 export default function HCaptchaPage() {
   return (
