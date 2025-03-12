@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CloudflareTurnstile } from "../../components/Captchas/CloudflareTurnstile";
+import { HCaptcha } from "../../components/Captchas/HCaptcha";
 
 export const metadata: Metadata = {
-  title: "Turnstile",
+  title: "HCaptcha",
 };
 
-export default function Turnstile() {
+export default function HCaptchaPage() {
   return (
     <main className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm space-y-4">
-        <CloudflareTurnstile />
+        <HCaptcha />
         <div className="text-center">
           <Link
             href="/"

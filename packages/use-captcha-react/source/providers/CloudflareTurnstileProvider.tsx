@@ -1,7 +1,6 @@
 import type { CaptchaProvider } from "../@types/CaptchaProvider";
 
 declare global {
-  var onloadTurnstileCallback: () => void;
   var turnstile:
     | {
         render: (
@@ -66,8 +65,10 @@ export class CloudflareTurnstileProvider
 {
   public name = "CloudflareTurnstile";
 
+  public loadCallback = "onloadTurnstileCallback";
+
   public src =
-    "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback";
+    `https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=${this.loadCallback}`;
 
   public globalName = "turnstile";
 
@@ -103,12 +104,6 @@ export class CloudflareTurnstileProvider
     }
 
     return turnstile[method];
-  }
-
-  private ready(cb: () => void) {
-    window.onloadTurnstileCallback = () => {
-      cb();
-    };
   }
 
   private cleanupPromise() {
@@ -229,13 +224,6 @@ export class CloudflareTurnstileProvider
   }
 
   public initialize(element: HTMLElement) {
-    if (typeof turnstile === "undefined") {
-      this.ready(() => {
-        this.render(element);
-      });
-      return;
-    }
-
     this.render(element);
   }
 }

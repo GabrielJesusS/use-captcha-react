@@ -12,6 +12,7 @@ type ScriptManifest = {
 type UseLoadScriptOptions = {
   onUnload?: () => void;
   globalVariables?: string[];
+  loadCallback?: string;
 };
 
 const scriptManifest = new Map<string, ScriptManifest>();
@@ -20,10 +21,28 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
   const hookId = useId();
   const [loaded, setLoaded] = useState(false);
 
+  const loadCallback = options.loadCallback ?? "";
+
+  const hasLoadCallback = !!loadCallback;
+
   useEffect(() => {
     if (!src) {
       console.error(new Error("No source provided, unable to load script!"));
       return;
+    }
+
+    function isCallbackRegistered() {
+      if (!loadCallback) return true;
+
+      // biome-ignore lint/suspicious/noExplicitAny: in this case i need to check the variable in the global scope
+      return typeof (<any>window)[loadCallback] !== "undefined";
+    }
+
+    function handleScriptLoad() {
+      if (isCallbackRegistered()) {
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        delete (<any>window)[loadCallback];
+      }
     }
 
     function checkGlobalVariables() {
@@ -63,12 +82,24 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       script.onload = () => {
         const data = scriptManifest.get(id);
 
-        if (data) {
+        if (!data) return;
+
+        data.consumers.add(hookId);
+
+        if (!hasLoadCallback) {
           data.loaded = true;
-          data.consumers.add(hookId);
+          setLoaded(true);
+          return;
         }
 
-        setLoaded(true);
+        if (!isCallbackRegistered() && !data.loaded) {
+          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+          (<any>window)[loadCallback] = () => {
+            data.loaded = true;
+            setLoaded(true);
+            handleScriptLoad();
+          };
+        }
       };
 
       script.onerror = (err) => {
@@ -101,7 +132,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
         }
       }
     };
-  }, [src, hookId, options, loaded]);
+  }, [src, hookId, options, loaded, hasLoadCallback, loadCallback]);
 
   return loaded;
 };

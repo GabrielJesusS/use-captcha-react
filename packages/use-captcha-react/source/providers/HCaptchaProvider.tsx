@@ -1,7 +1,7 @@
 import type { CaptchaProvider } from "../@types/CaptchaProvider";
 
 declare global {
-  var grecaptcha:
+  var hcaptcha:
     | {
         render: (
           elm: HTMLElement,
@@ -15,20 +15,13 @@ declare global {
     | undefined;
 }
 
-type GoogleReCaptchaV2Methods =
-  | "render"
-  | "execute"
-  | "reset"
-  | "getResponse"
-  | "ready";
+type HCaptchaMethods = "render" | "execute" | "reset" | "getResponse" | "ready";
 
-type GoogleReCaptchaV2Theme = "light" | "dark";
+type HCaptchaTheme = "light" | "dark";
 
-type GoogleReCaptchaV2Size = "normal" | "compact" | "invisible";
+type HCaptchaSize = "normal" | "compact" | "invisible";
 
-type GoogleReCaptchaV2Type = "image" | "audio";
-
-type GoogleReCaptchaV2BadgePosition = "bottomright" | "bottomleft" | "inline";
+type HCaptchaOrientation = "portrait" | "landscape";
 
 type Token = string | null;
 
@@ -36,35 +29,31 @@ type PromiseResolver = (value: Token | PromiseLike<Token>) => void;
 
 type PromiseRejector = (error: Error | PromiseLike<Error>) => void;
 
-type GoogleReCaptchaV2Options = {
+type HCaptchaOptions = {
   hl?: string;
-  stoken?: unknown;
   tabindex?: number;
   isolated?: boolean;
-  type?: GoogleReCaptchaV2Type;
-  size?: GoogleReCaptchaV2Size;
-  theme?: GoogleReCaptchaV2Theme;
-  badge?: GoogleReCaptchaV2BadgePosition;
+  size?: HCaptchaSize;
+  theme?: HCaptchaTheme;
+  badge?: HCaptchaOrientation;
   onChange?: (token: Token) => void;
   onExpired?: () => void;
   onErrored?: () => void;
 };
 
-export class GoogleReCaptchaV2Provider
-  implements CaptchaProvider<GoogleReCaptchaV2Options>
-{
-  public name = "GoogleReCaptchaV2";
+export class HCaptchaProvider implements CaptchaProvider<HCaptchaOptions> {
+  public name = "HCaptcha";
 
-  public loadCallback = "onloadReCaptchaCallback";
+  public loadCallback = "onloadHCaptchaCallback";
 
   public src =
-    `https://www.google.com/recaptcha/api.js?render=explicit&onload=${this.loadCallback}`;
+    `https://js.hcaptcha.com/1/api.js?onload=${this.loadCallback}&render=explicit`;
 
-  public globalName = "grecaptcha";
+  public globalName = "hcaptcha";
 
   public key: string;
 
-  public options?: GoogleReCaptchaV2Options | undefined;
+  public options?: HCaptchaOptions | undefined;
 
   private widgetId?: string = undefined;
 
@@ -74,7 +63,7 @@ export class GoogleReCaptchaV2Provider
 
   private currentPromiseRejector: PromiseRejector | null = null;
 
-  constructor(key: string, options?: GoogleReCaptchaV2Options) {
+  constructor(key: string, options?: HCaptchaOptions) {
     if (!key) {
       throw new Error("You must provide an valid key!");
     }
@@ -87,7 +76,7 @@ export class GoogleReCaptchaV2Provider
     this.cleanupPromise = this.cleanupPromise.bind(this);
   }
 
-  private extractMethod<T extends GoogleReCaptchaV2Methods>(method: T) {
+  private extractMethod<T extends HCaptchaMethods>(method: T) {
     if (typeof grecaptcha === "undefined") {
       return null;
     }
@@ -124,7 +113,7 @@ export class GoogleReCaptchaV2Provider
       this.options?.onErrored();
     }
     if (this.currentPromiseRejector) {
-      this.currentPromiseRejector(new Error("Error on ReCaptcha execution"));
+      this.currentPromiseRejector(new Error("Error on HCaptcha execution"));
       this.cleanupPromise();
     }
   }
@@ -136,11 +125,9 @@ export class GoogleReCaptchaV2Provider
       this.widgetId = render(wrapper, {
         sitekey: this.key,
         hl: this.options?.hl,
-        type: this.options?.type,
         size: this.options?.size,
         theme: this.options?.theme,
         badge: this.options?.badge,
-        stoken: this.options?.stoken,
         isolated: this.options?.isolated,
         tabindex: this.options?.tabindex,
         "expired-callback": this.handleExpired,

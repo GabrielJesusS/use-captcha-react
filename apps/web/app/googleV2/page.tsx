@@ -1,7 +1,12 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import { GoogleReCaptchaV2 } from "../../components/Captchas/GoogleReCaptchaV2";
+
+export function generateMetadata(): Metadata {
+  return {
+    title: "Google reCAPTCHA v2",
+  };
+}
 
 export default function GoogleV2() {
   return (
