@@ -55,7 +55,10 @@ export class GoogleReCaptchaV2Provider
 {
   public name = "GoogleReCaptchaV2";
 
-  public src = "https://www.google.com/recaptcha/api.js?render=explicit";
+  public loadCallback = "onloadReCaptchaCallback";
+
+  public src =
+    `https://www.google.com/recaptcha/api.js?render=explicit&onload=${this.loadCallback}`;
 
   public globalName = "grecaptcha";
 
@@ -90,13 +93,6 @@ export class GoogleReCaptchaV2Provider
     }
 
     return grecaptcha[method];
-  }
-
-  private ready(cb: () => void) {
-    const onReady = this.extractMethod("ready");
-    if (onReady) {
-      onReady(cb);
-    }
   }
 
   private cleanupPromise() {
@@ -198,8 +194,6 @@ export class GoogleReCaptchaV2Provider
   }
 
   public initialize(element: HTMLElement) {
-    this.ready(() => {
-      this.render(element);
-    });
+    this.render(element);
   }
 }
