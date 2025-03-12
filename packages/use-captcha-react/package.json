@@ -43,6 +43,11 @@
       "types": "./_build/turnstile.d.ts",
       "require": "./_build/turnstile.js",
       "import": "./_build/turnstile.mjs"
+    },
+    "./hcaptcha": {
+      "types": "./_build/hcaptcha.d.ts",
+      "require": "./_build/hcaptcha.js",
+      "import": "./_build/hcaptcha.mjs"
     }
   },
   "scripts": {

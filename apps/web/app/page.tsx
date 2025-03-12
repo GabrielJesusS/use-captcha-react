@@ -20,6 +20,11 @@ export default function Home() {
             description={"Test the Cloudflare Turnstile"}
             link="/turnstile"
           />
+          <CaptchaCard
+            title={"HCaptcha"}
+            description={"Test the HCaptcha"}
+            link="/hcaptcha"
+          />
         </div>
       </div>
     </main>

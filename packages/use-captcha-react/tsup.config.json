@@ -2,7 +2,8 @@
   "entry": {
     "index": "source/main/index.tsx",
     "googleV2": "source/providers/GoogleReCaptchaV2Provider.tsx",
-    "turnstile": "source/providers/CloudflareTurnstileProvider.tsx"
+    "turnstile": "source/providers/CloudflareTurnstileProvider.tsx",
+    "hcaptcha": "source/providers/HCaptchaProvider.tsx"
   },
   "splitting": false,
   "sourcemap": true,
