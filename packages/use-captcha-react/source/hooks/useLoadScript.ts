@@ -5,7 +5,9 @@ type ScriptManifest = {
   id: string;
   consumers: Set<string>;
   script: HTMLScriptElement | null;
+  onLoad: (() => void)[];
   loaded: boolean;
+  isLoading: boolean;
   errored: boolean;
 };
 
@@ -25,6 +27,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
 
   const hasLoadCallback = !!loadCallback;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!src) {
       console.error(new Error("No source provided, unable to load script!"));
@@ -54,24 +57,51 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       });
     }
 
+    function getMetadata(scriptId: string) {
+      return scriptManifest.get(scriptId);
+    }
+
+    function setScriptLoaded(scriptId: string) {
+      const metadata = getMetadata(scriptId);
+      if (metadata) {
+        metadata.loaded = true;
+        metadata.isLoading = false;
+        metadata.onLoad.forEach((cb) => cb());
+        metadata.onLoad = [];
+        setLoaded(true);
+      }
+    }
+
     const id = hash(src).toString();
 
     const scriptMetadata = scriptManifest.get(id);
 
-    if (scriptMetadata?.loaded && loaded && checkGlobalVariables()) {
+    if (scriptMetadata?.loaded && !loaded) {
+      setLoaded(true);
+    }
+
+    if (scriptMetadata?.isLoading) {
+      scriptMetadata.onLoad.push(() => {
+        scriptMetadata.consumers.add(hookId);
+        setLoaded(true);
+      });
       return;
     }
 
     if (scriptMetadata?.loaded && checkGlobalVariables()) {
       scriptMetadata.consumers.add(hookId);
       setLoaded(true);
-    } else {
+    }
+
+    if (!scriptMetadata?.loaded && !scriptMetadata?.isLoading) {
       const script = document.createElement("script");
 
       scriptManifest.set(id, {
         loaded: false,
         errored: false,
+        isLoading: true,
         consumers: new Set(),
+        onLoad: [],
         script,
         id,
       });
@@ -87,16 +117,14 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
         data.consumers.add(hookId);
 
         if (!hasLoadCallback) {
-          data.loaded = true;
-          setLoaded(true);
+          setScriptLoaded(id);
           return;
         }
 
         if (!isCallbackRegistered() && !data.loaded) {
           // biome-ignore lint/suspicious/noExplicitAny: <explanation>
           (<any>window)[loadCallback] = () => {
-            data.loaded = true;
-            setLoaded(true);
+            setScriptLoaded(id);
             handleScriptLoad();
           };
         }
@@ -108,6 +136,8 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
         if (data) {
           data.consumers.add(hookId);
           data.loaded = false;
+          data.isLoading = false;
+          data.errored = true;
         }
 
         console.error("Failed to load script", err);
@@ -119,7 +149,6 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
 
     return () => {
       const scriptMetadata = scriptManifest.get(id);
-
       if (scriptMetadata && scriptMetadata.consumers.size !== 0 && loaded) {
         scriptMetadata.consumers.delete(hookId);
 
@@ -132,7 +161,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
         }
       }
     };
-  }, [src, hookId, options, loaded, hasLoadCallback, loadCallback]);
+  }, [src, hookId, loaded, hasLoadCallback, loadCallback]);
 
   return loaded;
 };
