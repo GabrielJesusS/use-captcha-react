@@ -24,6 +24,13 @@
     "validation",
     "bot"
   ],
+  "typesVersions": {
+    "*": {
+      "googleReCaptchaV2": ["_build/googleV2.d.ts"],
+      "cloudflareTurnstile": ["_build/turnstile.d.ts"],
+      "hcaptcha": ["_build/hcaptcha.d.ts"]
+    }
+  },
   "private": false,
   "main": "./_build/index.js",
   "types": "./_build/index.d.ts",
