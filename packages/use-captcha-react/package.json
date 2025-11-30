@@ -1,6 +1,7 @@
 {
   "name": "use-captcha-react",
   "version": "1.0.2",
+  "private": false,
   "author": {
     "email": "gabrieljesus9221@gmail.com",
     "name": "Gabriel Jesus",
@@ -10,6 +11,7 @@
     "type": "git",
     "url": "https://github.com/GabrielJesusS/use-captcha-react/tree/main"
   },
+  "type": "module",
   "license": "MIT",
   "description": "React hook for captcha providers",
   "keywords": [
@@ -24,39 +26,6 @@
     "validation",
     "bot"
   ],
-  "typesVersions": {
-    "*": {
-      "googleReCaptchaV2": ["_build/googleV2.d.ts"],
-      "cloudflareTurnstile": ["_build/turnstile.d.ts"],
-      "hcaptcha": ["_build/hcaptcha.d.ts"]
-    }
-  },
-  "private": false,
-  "main": "./_build/index.js",
-  "types": "./_build/index.d.ts",
-  "module": "./_build/index.mjs",
-  "exports": {
-    ".": {
-      "types": "./_build/index.d.ts",
-      "require": "./_build/index.js",
-      "import": "./_build/index.mjs"
-    },
-    "./googleReCaptchaV2": {
-      "types": "./_build/googleV2.d.ts",
-      "require": "./_build/googleV2.js",
-      "import": "./_build/googleV2.mjs"
-    },
-    "./cloudflareTurnstile": {
-      "types": "./_build/turnstile.d.ts",
-      "require": "./_build/turnstile.js",
-      "import": "./_build/turnstile.mjs"
-    },
-    "./hcaptcha": {
-      "types": "./_build/hcaptcha.d.ts",
-      "require": "./_build/hcaptcha.js",
-      "import": "./_build/hcaptcha.mjs"
-    }
-  },
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
@@ -75,5 +44,50 @@
   "peerDependencies": {
     "react": ">=18 || <= 19",
     "react-dom": ">=18 || <= 19"
+  },
+  "main": "./_build/index.cjs",
+  "types": "./_build/index.d.ts",
+  "module": "./_build/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./_build/index.d.ts",
+        "default": "./_build/index.js"
+      },
+      "require": {
+        "types": "./_build/index.d.cts",
+        "default": "./_build/index.cjs"
+      }
+    },
+    "./googleReCaptchaV2": {
+      "import": {
+        "types": "./_build/googleV2.d.ts",
+        "default": "./_build/googleV2.js"
+      },
+      "require": {
+        "types": "./_build/googleV2.d.cts",
+        "default": "./_build/googleV2.cjs"
+      }
+    },
+    "./cloudflareTurnstile": {
+      "import": {
+        "types": "./_build/turnstile.d.ts",
+        "default": "./_build/turnstile.js"
+      },
+      "require": {
+        "types": "./_build/turnstile.d.cts",
+        "default": "./_build/turnstile.cjs"
+      }
+    },
+    "./hcaptcha": {
+      "import": {
+        "types": "./_build/hcaptcha.d.ts",
+        "default": "./_build/hcaptcha.js"
+      },
+      "require": {
+        "types": "./_build/hcaptcha.d.cts",
+        "default": "./_build/hcaptcha.cjs"
+      }
+    }
   }
 }
