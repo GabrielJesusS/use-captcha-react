@@ -1,6 +1,6 @@
 {
   "name": "use-captcha-react",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "private": false,
   "author": {
     "email": "gabrieljesus9221@gmail.com",
@@ -44,6 +44,13 @@
   "peerDependencies": {
     "react": ">=18 || <= 19",
     "react-dom": ">=18 || <= 19"
+  },
+  "typesVersions": {
+    "*": {
+      "googleReCaptchaV2": ["_build/googleV2.d.ts"],
+      "cloudflareTurnstile": ["_build/turnstile.d.ts"],
+      "hcaptcha": ["_build/hcaptcha.d.ts"]
+    }
   },
   "main": "./_build/index.cjs",
   "types": "./_build/index.d.ts",
