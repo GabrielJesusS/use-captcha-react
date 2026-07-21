@@ -27,10 +27,12 @@
     "bot"
   ],
   "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup",
+    "dev": "tsdown --watch",
+    "build": "tsdown",
     "size": "size-limit",
-    "size:why": "size-limit --why"
+    "size:why": "size-limit --why",
+    "test": "pnpm test:compat",
+    "test:compat": "npx --yes @arethetypeswrong/cli --pack ."
   },
   "devDependencies": {
     "@size-limit/esbuild-why": "^11.1.6",
@@ -38,7 +40,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "size-limit": "^11.1.6",
-    "tsup": "^8.3.5",
+    "tsdown": "0.22.3",
     "typescript": "5.5.4"
   },
   "peerDependencies": {
@@ -47,53 +49,53 @@
   },
   "typesVersions": {
     "*": {
-      "googleReCaptchaV2": ["_build/googleV2.d.ts"],
-      "cloudflareTurnstile": ["_build/turnstile.d.ts"],
-      "hcaptcha": ["_build/hcaptcha.d.ts"]
+      "googleReCaptchaV2": ["_build/googleV2.d.mts"],
+      "cloudflareTurnstile": ["_build/turnstile.d.mts"],
+      "hcaptcha": ["_build/hcaptcha.d.mts"]
     }
   },
-  "main": "./_build/index.cjs",
-  "types": "./_build/index.d.ts",
-  "module": "./_build/index.js",
+  "main": "./_build/index.js",
+  "types": "./_build/index.d.mts",
+  "module": "./_build/index.mjs",
   "exports": {
     ".": {
       "import": {
-        "types": "./_build/index.d.ts",
-        "default": "./_build/index.js"
+        "types": "./_build/index.d.mts",
+        "default": "./_build/index.mjs"
       },
       "require": {
         "types": "./_build/index.d.cts",
-        "default": "./_build/index.cjs"
+        "default": "./_build/index.js"
       }
     },
     "./googleReCaptchaV2": {
       "import": {
-        "types": "./_build/googleV2.d.ts",
-        "default": "./_build/googleV2.js"
+        "types": "./_build/googleV2.d.mts",
+        "default": "./_build/googleV2.mjs"
       },
       "require": {
         "types": "./_build/googleV2.d.cts",
-        "default": "./_build/googleV2.cjs"
+        "default": "./_build/googleV2.js"
       }
     },
     "./cloudflareTurnstile": {
       "import": {
-        "types": "./_build/turnstile.d.ts",
-        "default": "./_build/turnstile.js"
+        "types": "./_build/turnstile.d.mts",
+        "default": "./_build/turnstile.mjs"
       },
       "require": {
         "types": "./_build/turnstile.d.cts",
-        "default": "./_build/turnstile.cjs"
+        "default": "./_build/turnstile.js"
       }
     },
     "./hcaptcha": {
       "import": {
-        "types": "./_build/hcaptcha.d.ts",
-        "default": "./_build/hcaptcha.js"
+        "types": "./_build/hcaptcha.d.mts",
+        "default": "./_build/hcaptcha.mjs"
       },
       "require": {
         "types": "./_build/hcaptcha.d.cts",
-        "default": "./_build/hcaptcha.cjs"
+        "default": "./_build/hcaptcha.js"
       }
     }
   }

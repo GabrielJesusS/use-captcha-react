@@ -10,5 +10,6 @@
       "fileMatch": ["package.json", "tsup.config.json"]
     }
   ],
-  "cSpell.words": ["grecaptcha", "sitekey", "stoken"]
+  "cSpell.words": ["grecaptcha", "sitekey", "stoken"],
+  "js/ts.tsdk.path": "node_modules/typescript/lib"
 }

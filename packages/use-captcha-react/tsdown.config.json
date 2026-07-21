@@ -15,6 +15,8 @@
   "dts": true,
   "minify": true,
   "treeshake": true,
-  "skipNodeModulesBundle": true,
-  "ignoreWatch": ["_build", ".turbo", "node_modules", "scripts"]
+  "ignoreWatch": ["_build", ".turbo", "node_modules", "scripts"],
+  "deps": {
+    "skipNodeModulesBundle": true
+  }
 }
