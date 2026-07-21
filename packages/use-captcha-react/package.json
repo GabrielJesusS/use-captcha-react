@@ -30,7 +30,9 @@
     "dev": "tsdown --watch",
     "build": "tsdown",
     "size": "size-limit",
-    "size:why": "size-limit --why"
+    "size:why": "size-limit --why",
+    "test": "pnpm test:compat",
+    "test:compat": "npx --yes @arethetypeswrong/cli --pack ."
   },
   "devDependencies": {
     "@size-limit/esbuild-why": "^11.1.6",

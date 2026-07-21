@@ -8,4 +8,5 @@ pre-push:
   commands:
     ensure-build:
       run: pnpm build
-      exit_code: true
+    test:
+      run: pnpm test

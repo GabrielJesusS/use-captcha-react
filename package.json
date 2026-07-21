@@ -6,7 +6,8 @@
     "dev": "turbo dev",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "publish-packages": "env-cmd turbo run build lint && changeset version && changeset publish"
+    "publish-packages": "env-cmd turbo run build lint && changeset version && changeset publish",
+    "test": "turbo test"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
