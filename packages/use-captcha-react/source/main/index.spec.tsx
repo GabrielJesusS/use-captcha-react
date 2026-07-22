@@ -165,6 +165,28 @@ describe("useCaptcha", () => {
     await expect(methods.executeAsync()).resolves.toBe("fake-async-value");
   });
 
+  it("execute, reset, getValue and executeAsync no-op when the provider ref is cleared", async () => {
+    let api: CaptchaResult[1] | undefined;
+    let ref: CaptchaResult[2] | undefined;
+    render(
+      <Harness
+        k="key-1"
+        onRender={([, a, providerRef]) => {
+          api = a;
+          ref = providerRef;
+        }}
+      />,
+    );
+    const methods = mustGet(api);
+    (mustGet(ref) as unknown as { current: FakeProvider | null }).current =
+      null;
+
+    expect(() => methods.execute()).not.toThrow();
+    expect(() => methods.reset()).not.toThrow();
+    expect(methods.getValue()).toBeNull();
+    await expect(methods.executeAsync()).resolves.toBeNull();
+  });
+
   it("exposes the provider instance via the third tuple element", () => {
     let captured: FakeProvider | undefined;
     render(
