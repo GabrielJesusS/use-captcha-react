@@ -77,11 +77,11 @@ export class HCaptchaProvider implements CaptchaProvider<HCaptchaOptions> {
   }
 
   private extractMethod<T extends HCaptchaMethods>(method: T) {
-    if (typeof grecaptcha === "undefined") {
+    if (typeof hcaptcha === "undefined") {
       return null;
     }
 
-    return grecaptcha[method];
+    return hcaptcha[method];
   }
 
   private cleanupPromise() {
