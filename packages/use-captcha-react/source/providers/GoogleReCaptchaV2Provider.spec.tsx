@@ -153,6 +153,30 @@ describe("GoogleReCaptchaV2Provider", () => {
     await expect(promise).rejects.toThrow("Error on ReCaptcha execution");
   });
 
+  it("calls onChange when the widget reports a token", () => {
+    const grecaptcha = stubGrecaptcha();
+    const onChange = vi.fn();
+    const provider = new GoogleReCaptchaV2Provider("site-key", { onChange });
+    provider.initialize(document.createElement("div"));
+
+    const settings = renderSettings(grecaptcha);
+    settings.callback("the-token");
+
+    expect(onChange).toHaveBeenCalledWith("the-token");
+  });
+
+  it("calls onErrored when provided", () => {
+    const grecaptcha = stubGrecaptcha();
+    const onErrored = vi.fn();
+    const provider = new GoogleReCaptchaV2Provider("site-key", { onErrored });
+    provider.initialize(document.createElement("div"));
+
+    const settings = renderSettings(grecaptcha);
+    settings["error-callback"]();
+
+    expect(onErrored).toHaveBeenCalledTimes(1);
+  });
+
   it("calls onExpired when provided", () => {
     const grecaptcha = stubGrecaptcha();
     const onExpired = vi.fn();
