@@ -19,6 +19,14 @@ export default defineConfig({
     coverage: {
       include: ["source/**/*.{ts,tsx}"],
       exclude: ["source/**/@types/*.{ts,tsx}"],
+      thresholds: {
+        statements: 99.66,
+        branches: 96.53,
+        functions: 100,
+        lines: 100,
+        // Ratchets thresholds up when coverage improves; never accepts a drop.
+        autoUpdate: true,
+      },
     },
   },
 });
