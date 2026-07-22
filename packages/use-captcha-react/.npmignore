@@ -5,3 +5,10 @@ scripts/
 .size-limit.cjs
 tsconfig.json
 tsup.config.json
+compat.md
+.env
+coverage/
+vitest.config.ts
+vitest.setup.ts
+tsdown.config.json
+tsconfig.json
