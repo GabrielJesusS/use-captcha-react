@@ -153,6 +153,30 @@ describe("HCaptchaProvider", () => {
     await expect(promise).rejects.toThrow("Error on HCaptcha execution");
   });
 
+  it("calls onChange when the widget reports a token", () => {
+    const hcaptcha = stubHcaptcha();
+    const onChange = vi.fn();
+    const provider = new HCaptchaProvider("site-key", { onChange });
+    provider.initialize(document.createElement("div"));
+
+    const settings = renderSettings(hcaptcha);
+    settings.callback("the-token");
+
+    expect(onChange).toHaveBeenCalledWith("the-token");
+  });
+
+  it("calls onErrored when provided", () => {
+    const hcaptcha = stubHcaptcha();
+    const onErrored = vi.fn();
+    const provider = new HCaptchaProvider("site-key", { onErrored });
+    provider.initialize(document.createElement("div"));
+
+    const settings = renderSettings(hcaptcha);
+    settings["error-callback"]();
+
+    expect(onErrored).toHaveBeenCalledTimes(1);
+  });
+
   it("calls onExpired when provided", () => {
     const hcaptcha = stubHcaptcha();
     const onExpired = vi.fn();
