@@ -6,7 +6,6 @@
     "dev": "turbo dev",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "publish-packages": "env-cmd turbo run build lint && changeset version && changeset publish",
     "test": "turbo test"
   },
   "devDependencies": {
@@ -15,12 +14,11 @@
     "turbo": "^2.2.3",
     "typescript": "5.5.4"
   },
-  "packageManager": "pnpm@8.15.6",
+  "packageManager": "pnpm@11.15.1",
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
-    "@changesets/cli": "^2.29.8",
     "env-cmd": "^10.1.0"
   }
 }
