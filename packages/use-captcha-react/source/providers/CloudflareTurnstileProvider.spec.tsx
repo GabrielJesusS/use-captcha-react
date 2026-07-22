@@ -159,6 +159,30 @@ describe("CloudflareTurnstileProvider", () => {
     await expect(promise).rejects.toThrow("Error on Turnstile execution");
   });
 
+  it("calls onChange when the widget reports a token", () => {
+    const turnstile = stubTurnstile();
+    const onChange = vi.fn();
+    const provider = new CloudflareTurnstileProvider("site-key", { onChange });
+    provider.initialize(document.createElement("div"));
+
+    const settings = renderSettings(turnstile);
+    settings.callback("the-token");
+
+    expect(onChange).toHaveBeenCalledWith("the-token");
+  });
+
+  it("calls onErrored when provided", () => {
+    const turnstile = stubTurnstile();
+    const onErrored = vi.fn();
+    const provider = new CloudflareTurnstileProvider("site-key", { onErrored });
+    provider.initialize(document.createElement("div"));
+
+    const settings = renderSettings(turnstile);
+    settings["error-callback"]();
+
+    expect(onErrored).toHaveBeenCalledTimes(1);
+  });
+
   it("calls onExpired when provided", () => {
     const turnstile = stubTurnstile();
     const onExpired = vi.fn();
@@ -193,6 +217,18 @@ describe("CloudflareTurnstileProvider", () => {
     settings["timeout-callback"]();
 
     expect(onTimeout).toHaveBeenCalledTimes(1);
+  });
+
+  it("resolves a pending executeAsync with null on timeout when no onTimeout is set", async () => {
+    const turnstile = stubTurnstile();
+    const provider = new CloudflareTurnstileProvider("site-key");
+    provider.initialize(document.createElement("div"));
+
+    const settings = renderSettings(turnstile);
+    const promise = provider.executeAsync();
+    settings["timeout-callback"]();
+
+    await expect(promise).resolves.toBeNull();
   });
 
   it("is a safe no-op when the turnstile global is not defined", () => {
