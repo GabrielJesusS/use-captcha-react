@@ -117,6 +117,23 @@ describe("useLoadScript", () => {
     expect(second.current).toBe(true);
   });
 
+  it("a hook that mounts after the script already loaded becomes loaded immediately", () => {
+    const src = uniqueSrc();
+    renderHook(() => useLoadScript(src));
+
+    const script = getScript(src);
+    act(() => {
+      script?.onload?.(new Event("load"));
+    });
+
+    const { result: lateJoiner } = renderHook(() => useLoadScript(src));
+
+    expect(lateJoiner.current).toBe(true);
+    expect(document.body.querySelectorAll(`script[src="${src}"]`)).toHaveLength(
+      1,
+    );
+  });
+
   it("removes the script and calls onUnload when the last consumer unmounts", () => {
     const src = uniqueSrc();
     const onUnload = vi.fn();
@@ -134,6 +151,22 @@ describe("useLoadScript", () => {
 
     expect(getScript(src)).toBeNull();
     expect(onUnload).toHaveBeenCalledTimes(1);
+  });
+
+  it("is a no-op if onload fires again after the script was already cleaned up", () => {
+    const src = uniqueSrc();
+    const { result, unmount } = renderHook(() => useLoadScript(src));
+
+    const script = getScript(src);
+    act(() => {
+      script?.onload?.(new Event("load"));
+    });
+    expect(result.current).toBe(true);
+
+    unmount();
+    expect(getScript(src)).toBeNull();
+
+    expect(() => script?.onload?.(new Event("load"))).not.toThrow();
   });
 
   it("does not remove the script when unmounting before it has loaded", () => {
