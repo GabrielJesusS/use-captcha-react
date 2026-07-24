@@ -2,6 +2,7 @@
   "name": "use-captcha-react",
   "version": "1.0.5",
   "private": false,
+  "sideEffects": false,
   "author": {
     "email": "gabrieljesus9221@gmail.com",
     "name": "Gabriel Jesus",
