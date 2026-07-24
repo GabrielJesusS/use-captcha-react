@@ -21,22 +21,22 @@ module.exports = [
   },
   {
     name: "esm all",
-    path: "./_build/**/*.js",
+    path: "./_build/**/*.mjs",
     gzip: true,
   },
   {
     name: "esm main",
-    path: "./_build/index.js",
+    path: "./_build/index.mjs",
     gzip: true,
   },
   {
     name: "cjs providers - [GoogleV2]",
-    path: "./_build/googleV2.js",
+    path: "./_build/googleV2.mjs",
     gzip: true,
   },
   {
     name: "mjs providers - [Turnstile]",
-    path: "./_build/turnstile.js",
+    path: "./_build/turnstile.mjs",
     gzip: true,
   },
 ];
