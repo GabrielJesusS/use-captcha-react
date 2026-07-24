@@ -10,3 +10,5 @@ pre-push:
       run: pnpm build
     test:
       run: pnpm test
+    coverage:
+      run: pnpm --filter ./packages/use-captcha-react test:coverage
