@@ -14,10 +14,10 @@ function windowCallback(name: string) {
 }
 
 describe("useLoadScript", () => {
-  it("returns false before the script loads", () => {
+  it("returns not-loaded before the script loads", () => {
     const { result } = renderHook(() => useLoadScript(uniqueSrc()));
 
-    expect(result.current).toBe(false);
+    expect(result.current).toEqual({ loaded: false, errored: false });
   });
 
   it("logs an error and appends no script when src is missing", () => {
@@ -29,7 +29,7 @@ describe("useLoadScript", () => {
     const { result } = renderHook(() => useLoadScript());
 
     expect(errorSpy).toHaveBeenCalled();
-    expect(result.current).toBe(false);
+    expect(result.current.loaded).toBe(false);
     expect(
       document.body.querySelectorAll("script[data-loaded-id]"),
     ).toHaveLength(scriptCountBefore);
@@ -56,7 +56,7 @@ describe("useLoadScript", () => {
       script?.onload?.(new Event("load"));
     });
 
-    expect(result.current).toBe(true);
+    expect(result.current).toEqual({ loaded: true, errored: false });
   });
 
   it("waits for the loadCallback handshake before becoming loaded", () => {
@@ -69,18 +69,18 @@ describe("useLoadScript", () => {
       script?.onload?.(new Event("load"));
     });
 
-    expect(result.current).toBe(false);
+    expect(result.current.loaded).toBe(false);
     expect(typeof windowCallback(loadCallback)).toBe("function");
 
     act(() => {
       windowCallback(loadCallback)?.();
     });
 
-    expect(result.current).toBe(true);
+    expect(result.current.loaded).toBe(true);
     expect(windowCallback(loadCallback)).toBeUndefined();
   });
 
-  it("marks loaded and logs an error when the script fails to load", () => {
+  it("marks errored (not loaded) and logs an error when the script fails to load", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const src = uniqueSrc();
     const { result } = renderHook(() => useLoadScript(src));
@@ -94,7 +94,7 @@ describe("useLoadScript", () => {
       "Failed to load script",
       expect.anything(),
     );
-    expect(result.current).toBe(true);
+    expect(result.current).toEqual({ loaded: false, errored: true });
 
     errorSpy.mockRestore();
   });
@@ -113,8 +113,8 @@ describe("useLoadScript", () => {
       script?.onload?.(new Event("load"));
     });
 
-    expect(first.current).toBe(true);
-    expect(second.current).toBe(true);
+    expect(first.current.loaded).toBe(true);
+    expect(second.current.loaded).toBe(true);
   });
 
   it("a hook that mounts after the script already loaded becomes loaded immediately", () => {
@@ -128,10 +128,26 @@ describe("useLoadScript", () => {
 
     const { result: lateJoiner } = renderHook(() => useLoadScript(src));
 
-    expect(lateJoiner.current).toBe(true);
+    expect(lateJoiner.current.loaded).toBe(true);
     expect(document.body.querySelectorAll(`script[src="${src}"]`)).toHaveLength(
       1,
     );
+  });
+
+  it("does not report loaded for a late joiner until its required global variable is present", () => {
+    const src = uniqueSrc();
+    renderHook(() => useLoadScript(src));
+
+    const script = getScript(src);
+    act(() => {
+      script?.onload?.(new Event("load"));
+    });
+
+    const { result: lateJoiner } = renderHook(() =>
+      useLoadScript(src, { globalVariables: ["__missingGlobal__"] }),
+    );
+
+    expect(lateJoiner.current.loaded).toBe(false);
   });
 
   it("removes the script and calls onUnload when the last consumer unmounts", () => {
@@ -145,7 +161,7 @@ describe("useLoadScript", () => {
     act(() => {
       script?.onload?.(new Event("load"));
     });
-    expect(result.current).toBe(true);
+    expect(result.current.loaded).toBe(true);
 
     unmount();
 
@@ -161,7 +177,7 @@ describe("useLoadScript", () => {
     act(() => {
       script?.onload?.(new Event("load"));
     });
-    expect(result.current).toBe(true);
+    expect(result.current.loaded).toBe(true);
 
     unmount();
     expect(getScript(src)).toBeNull();
@@ -202,5 +218,46 @@ describe("useLoadScript", () => {
     unmountSecond();
     expect(getScript(src)).toBeNull();
     expect(onUnload).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not leak a consumer slot when a joiner unmounts before the in-flight load settles", () => {
+    const src = uniqueSrc();
+    const { result: first, unmount: unmountFirst } = renderHook(() =>
+      useLoadScript(src),
+    );
+    const { unmount: unmountSecond } = renderHook(() => useLoadScript(src));
+
+    unmountSecond();
+
+    const script = getScript(src);
+    act(() => {
+      script?.onload?.(new Event("load"));
+    });
+    expect(first.current.loaded).toBe(true);
+
+    unmountFirst();
+
+    expect(getScript(src)).toBeNull();
+  });
+
+  it("creates a fresh script instead of leaving the failed one orphaned when retried", () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const src = uniqueSrc();
+
+    renderHook(() => useLoadScript(src));
+    const firstScript = getScript(src);
+    act(() => {
+      firstScript?.onerror?.(new Event("error"));
+    });
+
+    const { result: second } = renderHook(() => useLoadScript(src));
+
+    expect(document.body.querySelectorAll(`script[src="${src}"]`)).toHaveLength(
+      1,
+    );
+    expect(getScript(src)).not.toBe(firstScript);
+    expect(second.current).toEqual({ loaded: false, errored: false });
+
+    errorSpy.mockRestore();
   });
 });

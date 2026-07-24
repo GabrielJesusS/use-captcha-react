@@ -27,7 +27,7 @@ export const useCaptcha = <Options, Provider extends CaptchaProvider<Options>>(
   if (!captcha.current) {
     captcha.current = new provider(key, options);
   }
-  const hasLoaded = useLoadScript(captcha.current.src, {
+  const { loaded: hasLoaded } = useLoadScript(captcha.current.src, {
     globalVariables: [captcha.current.globalName],
     loadCallback: captcha.current.loadCallback,
   });

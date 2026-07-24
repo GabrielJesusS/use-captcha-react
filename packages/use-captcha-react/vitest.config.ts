@@ -21,7 +21,7 @@ export default defineConfig({
       exclude: ["source/**/@types/*.{ts,tsx}"],
       thresholds: {
         statements: 99.48,
-        branches: 94.49,
+        branches: 95.83,
         functions: 100,
         lines: 100,
         // Ratchets thresholds up when coverage improves; never accepts a drop.

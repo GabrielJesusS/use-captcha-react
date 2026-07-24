@@ -15,13 +15,24 @@ type UseLoadScriptOptions = {
   loadCallback?: string;
 };
 
+export type UseLoadScriptStatus = {
+  loaded: boolean;
+  errored: boolean;
+};
+
 type WindowWithGlobals = Window & Record<string, unknown>;
 
 const scriptManifest = new Map<string, ScriptManifest>();
 
-export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
+export const useLoadScript = (
+  src = "",
+  options: UseLoadScriptOptions = {},
+): UseLoadScriptStatus => {
   const hookId = useId();
-  const [loaded, setLoaded] = useState(false);
+  const [status, setStatus] = useState<UseLoadScriptStatus>({
+    loaded: false,
+    errored: false,
+  });
 
   const loadCallback = options.loadCallback ?? "";
 
@@ -38,9 +49,13 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
 
     const globalWindow = window as WindowWithGlobals;
 
-    function isCallbackRegistered() {
-      if (!hasLoadCallback) return true;
+    // Guards against a hook that joins mid-load (or creates the script)
+    // and unmounts before it settles: the eventual join() call becomes a
+    // no-op instead of leaking a consumer that can never be cleaned up.
+    let cancelled = false;
+    let joined = false;
 
+    function isCallbackRegistered() {
       return typeof globalWindow[loadCallback] !== "undefined";
     }
 
@@ -48,110 +63,99 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       const globalVariables = optionsRef.current.globalVariables;
       if (!globalVariables) return true;
 
-      return globalVariables.every((variable) => {
-        return typeof globalWindow[variable] !== "undefined";
-      });
+      return globalVariables.every(
+        (variable) => typeof globalWindow[variable] !== "undefined",
+      );
     }
 
-    function setScriptLoaded(scriptId: string) {
-      const metadata = scriptManifest.get(scriptId);
-      if (metadata) {
-        metadata.loaded = true;
-        metadata.isLoading = false;
-        metadata.onLoad.forEach((cb) => cb());
-        metadata.onLoad = [];
-        setLoaded(true);
-      }
+    function join(metadata: ScriptManifest) {
+      if (cancelled) return;
+      joined = true;
+      metadata.consumers.add(hookId);
+      setStatus({ loaded: metadata.loaded, errored: metadata.errored });
     }
 
-    const scriptMetadata = scriptManifest.get(src);
-
-    if (scriptMetadata?.loaded && !loaded) {
-      setLoaded(true);
+    function settle(metadata: ScriptManifest) {
+      metadata.isLoading = false;
+      for (const callback of metadata.onLoad) callback();
+      metadata.onLoad = [];
     }
 
-    if (scriptMetadata?.isLoading) {
-      scriptMetadata.onLoad.push(() => {
-        scriptMetadata.consumers.add(hookId);
-        setLoaded(true);
-      });
-      return;
+    let metadata = scriptManifest.get(src);
+
+    // A previously failed attempt for this src is unusable; drop it so a
+    // fresh script gets created below instead of leaving the failed one
+    // orphaned in the DOM.
+    if (metadata?.errored) {
+      if (metadata.script) document.body.removeChild(metadata.script);
+      scriptManifest.delete(src);
+      metadata = undefined;
     }
 
-    if (scriptMetadata?.loaded && checkGlobalVariables()) {
-      scriptMetadata.consumers.add(hookId);
-      setLoaded(true);
-    }
-
-    if (!scriptMetadata?.loaded && !scriptMetadata?.isLoading) {
+    if (metadata?.isLoading) {
+      const pending = metadata;
+      pending.onLoad.push(() => join(pending));
+    } else if (metadata?.loaded) {
+      if (checkGlobalVariables()) join(metadata);
+    } else {
       const script = document.createElement("script");
-
-      scriptManifest.set(src, {
+      const created: ScriptManifest = {
         loaded: false,
         errored: false,
         isLoading: true,
         consumers: new Set(),
         onLoad: [],
         script,
-      });
+      };
+      scriptManifest.set(src, created);
 
       script.setAttribute("data-loaded-id", src);
       script.src = src;
       script.async = true;
+
       script.onload = () => {
-        const data = scriptManifest.get(src);
-
-        if (!data) return;
-
-        data.consumers.add(hookId);
-
-        if (!hasLoadCallback) {
-          setScriptLoaded(src);
+        if (!hasLoadCallback || isCallbackRegistered()) {
+          created.loaded = true;
+          settle(created);
+          join(created);
           return;
         }
 
-        if (!isCallbackRegistered() && !data.loaded) {
-          globalWindow[loadCallback] = () => {
-            setScriptLoaded(src);
-            if (isCallbackRegistered()) {
-              delete globalWindow[loadCallback];
-            }
-          };
-        }
+        globalWindow[loadCallback] = () => {
+          created.loaded = true;
+          settle(created);
+          if (isCallbackRegistered()) delete globalWindow[loadCallback];
+          join(created);
+        };
       };
 
       script.onerror = (err) => {
-        const data = scriptManifest.get(src);
-
-        if (data) {
-          data.consumers.add(hookId);
-          data.loaded = false;
-          data.isLoading = false;
-          data.errored = true;
-        }
-
+        created.errored = true;
+        settle(created);
         console.error("Failed to load script", err);
-        setLoaded(true);
+        join(created);
       };
 
       document.body.appendChild(script);
     }
 
     return () => {
-      const scriptMetadata = scriptManifest.get(src);
-      if (scriptMetadata && scriptMetadata.consumers.size !== 0 && loaded) {
-        scriptMetadata.consumers.delete(hookId);
+      cancelled = true;
+      if (!joined) return;
 
-        if (scriptMetadata.consumers.size !== 0) return;
+      const current = scriptManifest.get(src);
+      if (!current) return;
 
-        if (scriptMetadata.script) {
-          scriptManifest.delete(src);
-          document.body.removeChild(scriptMetadata.script);
-          optionsRef.current.onUnload?.();
-        }
+      current.consumers.delete(hookId);
+      if (current.consumers.size !== 0) return;
+
+      if (current.script) {
+        scriptManifest.delete(src);
+        document.body.removeChild(current.script);
       }
+      optionsRef.current.onUnload?.();
     };
-  }, [src, hookId, loaded, hasLoadCallback, loadCallback]);
+  }, [src, hookId, hasLoadCallback, loadCallback]);
 
-  return loaded;
+  return status;
 };
