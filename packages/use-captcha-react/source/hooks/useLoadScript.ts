@@ -1,5 +1,4 @@
 import { useEffect, useId, useRef, useState } from "react";
-import hash from "../utils/hash";
 
 type ScriptManifest = {
   id: string;
@@ -76,7 +75,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       }
     }
 
-    const id = hash(src).toString();
+    const id = src;
 
     const scriptMetadata = scriptManifest.get(id);
 
