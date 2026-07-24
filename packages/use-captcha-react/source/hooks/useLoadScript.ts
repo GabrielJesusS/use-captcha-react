@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import hash from "../utils/hash";
 
 type ScriptManifest = {
@@ -27,7 +27,9 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
 
   const hasLoadCallback = !!loadCallback;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
   useEffect(() => {
     if (!src) {
       console.error(new Error("No source provided, unable to load script!"));
@@ -49,9 +51,10 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
     }
 
     function checkGlobalVariables() {
-      if (!options.globalVariables) return true;
+      const globalVariables = optionsRef.current.globalVariables;
+      if (!globalVariables) return true;
 
-      return options.globalVariables.every((variable) => {
+      return globalVariables.every((variable) => {
         // biome-ignore lint/suspicious/noExplicitAny: in this case i need to check the variable in the global scope
         return typeof (<any>window)[variable] !== "undefined";
       });
@@ -157,7 +160,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
         if (scriptMetadata.script) {
           scriptManifest.delete(id);
           document.body.removeChild(scriptMetadata.script);
-          options?.onUnload?.();
+          optionsRef.current.onUnload?.();
         }
       }
     };
