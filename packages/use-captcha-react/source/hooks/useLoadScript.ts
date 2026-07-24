@@ -1,7 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 
 type ScriptManifest = {
-  id: string;
   consumers: Set<string>;
   script: HTMLScriptElement | null;
   onLoad: (() => void)[];
@@ -40,15 +39,9 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
     const globalWindow = window as WindowWithGlobals;
 
     function isCallbackRegistered() {
-      if (!loadCallback) return true;
+      if (!hasLoadCallback) return true;
 
       return typeof globalWindow[loadCallback] !== "undefined";
-    }
-
-    function handleScriptLoad() {
-      if (isCallbackRegistered()) {
-        delete globalWindow[loadCallback];
-      }
     }
 
     function checkGlobalVariables() {
@@ -60,12 +53,8 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       });
     }
 
-    function getMetadata(scriptId: string) {
-      return scriptManifest.get(scriptId);
-    }
-
     function setScriptLoaded(scriptId: string) {
-      const metadata = getMetadata(scriptId);
+      const metadata = scriptManifest.get(scriptId);
       if (metadata) {
         metadata.loaded = true;
         metadata.isLoading = false;
@@ -75,9 +64,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       }
     }
 
-    const id = src;
-
-    const scriptMetadata = scriptManifest.get(id);
+    const scriptMetadata = scriptManifest.get(src);
 
     if (scriptMetadata?.loaded && !loaded) {
       setLoaded(true);
@@ -99,41 +86,42 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
     if (!scriptMetadata?.loaded && !scriptMetadata?.isLoading) {
       const script = document.createElement("script");
 
-      scriptManifest.set(id, {
+      scriptManifest.set(src, {
         loaded: false,
         errored: false,
         isLoading: true,
         consumers: new Set(),
         onLoad: [],
         script,
-        id,
       });
 
-      script.setAttribute("data-loaded-id", id);
+      script.setAttribute("data-loaded-id", src);
       script.src = src;
       script.async = true;
       script.onload = () => {
-        const data = scriptManifest.get(id);
+        const data = scriptManifest.get(src);
 
         if (!data) return;
 
         data.consumers.add(hookId);
 
         if (!hasLoadCallback) {
-          setScriptLoaded(id);
+          setScriptLoaded(src);
           return;
         }
 
         if (!isCallbackRegistered() && !data.loaded) {
           globalWindow[loadCallback] = () => {
-            setScriptLoaded(id);
-            handleScriptLoad();
+            setScriptLoaded(src);
+            if (isCallbackRegistered()) {
+              delete globalWindow[loadCallback];
+            }
           };
         }
       };
 
       script.onerror = (err) => {
-        const data = scriptManifest.get(id);
+        const data = scriptManifest.get(src);
 
         if (data) {
           data.consumers.add(hookId);
@@ -150,14 +138,14 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
     }
 
     return () => {
-      const scriptMetadata = scriptManifest.get(id);
+      const scriptMetadata = scriptManifest.get(src);
       if (scriptMetadata && scriptMetadata.consumers.size !== 0 && loaded) {
         scriptMetadata.consumers.delete(hookId);
 
         if (scriptMetadata.consumers.size !== 0) return;
 
         if (scriptMetadata.script) {
-          scriptManifest.delete(id);
+          scriptManifest.delete(src);
           document.body.removeChild(scriptMetadata.script);
           optionsRef.current.onUnload?.();
         }
