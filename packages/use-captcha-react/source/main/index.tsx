@@ -23,7 +23,10 @@ export const useCaptcha = <Options, Provider extends CaptchaProvider<Options>>(
   options?: Provider["options"],
 ): UseCaptchaReturn<Options, Provider> => {
   const element = useRef<HTMLDivElement>(null);
-  const captcha = useRef(new provider(key, options));
+  const captcha = useRef<Provider | null>(null);
+  if (!captcha.current) {
+    captcha.current = new provider(key, options);
+  }
   const hasLoaded = useLoadScript(captcha.current.src, {
     globalVariables: [captcha.current.globalName],
     loadCallback: captcha.current.loadCallback,
@@ -58,5 +61,9 @@ export const useCaptcha = <Options, Provider extends CaptchaProvider<Options>>(
     return await captcha.current.executeAsync();
   }, []);
 
-  return [element, { execute, executeAsync, getValue, reset }, captcha];
+  return [
+    element,
+    { execute, executeAsync, getValue, reset },
+    captcha as RefObject<Provider>,
+  ];
 };

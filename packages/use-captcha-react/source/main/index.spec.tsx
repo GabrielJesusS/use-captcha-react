@@ -73,7 +73,7 @@ afterEach(() => {
 });
 
 describe("useCaptcha", () => {
-  it("keeps the same provider instance across re-renders even though the constructor runs again", () => {
+  it("keeps the same provider instance across re-renders and only constructs it once", () => {
     const seen: FakeProvider[] = [];
     const onRender = ([, , ref]: CaptchaResult) =>
       seen.push(mustGet(ref.current));
@@ -83,7 +83,7 @@ describe("useCaptcha", () => {
       <Harness k="key-1" options={{ flag: true }} onRender={onRender} />,
     );
 
-    expect(FakeProvider.instances.length).toBeGreaterThan(1);
+    expect(FakeProvider.instances.length).toBe(1);
     expect(seen[0]).toBe(seen[1]);
   });
 
