@@ -17,6 +17,8 @@ type UseLoadScriptOptions = {
   loadCallback?: string;
 };
 
+type WindowWithGlobals = Window & Record<string, unknown>;
+
 const scriptManifest = new Map<string, ScriptManifest>();
 
 export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
@@ -36,17 +38,17 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       return;
     }
 
+    const globalWindow = window as WindowWithGlobals;
+
     function isCallbackRegistered() {
       if (!loadCallback) return true;
 
-      // biome-ignore lint/suspicious/noExplicitAny: in this case i need to check the variable in the global scope
-      return typeof (<any>window)[loadCallback] !== "undefined";
+      return typeof globalWindow[loadCallback] !== "undefined";
     }
 
     function handleScriptLoad() {
       if (isCallbackRegistered()) {
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        delete (<any>window)[loadCallback];
+        delete globalWindow[loadCallback];
       }
     }
 
@@ -55,8 +57,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
       if (!globalVariables) return true;
 
       return globalVariables.every((variable) => {
-        // biome-ignore lint/suspicious/noExplicitAny: in this case i need to check the variable in the global scope
-        return typeof (<any>window)[variable] !== "undefined";
+        return typeof globalWindow[variable] !== "undefined";
       });
     }
 
@@ -125,8 +126,7 @@ export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
         }
 
         if (!isCallbackRegistered() && !data.loaded) {
-          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-          (<any>window)[loadCallback] = () => {
+          globalWindow[loadCallback] = () => {
             setScriptLoaded(id);
             handleScriptLoad();
           };
