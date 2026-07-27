@@ -1,14 +1,12 @@
-import { useEffect, useId, useState } from "react";
-import hash from "../utils/hash";
+import { useEffect, useId, useRef, useState } from "react";
+
+type ScriptStatus = "loading" | "loaded" | "error";
 
 type ScriptManifest = {
-  id: string;
   consumers: Set<string>;
   script: HTMLScriptElement | null;
   onLoad: (() => void)[];
-  loaded: boolean;
-  isLoading: boolean;
-  errored: boolean;
+  status: ScriptStatus;
 };
 
 type UseLoadScriptOptions = {
@@ -17,151 +15,138 @@ type UseLoadScriptOptions = {
   loadCallback?: string;
 };
 
+export type UseLoadScriptStatus = ScriptStatus;
+
+type WindowWithGlobals = Window & Record<string, unknown>;
+
 const scriptManifest = new Map<string, ScriptManifest>();
 
-export const useLoadScript = (src = "", options: UseLoadScriptOptions = {}) => {
+export const useLoadScript = (
+  src = "",
+  options: UseLoadScriptOptions = {},
+): UseLoadScriptStatus => {
   const hookId = useId();
-  const [loaded, setLoaded] = useState(false);
+  const [status, setStatus] = useState<ScriptStatus>("loading");
 
   const loadCallback = options.loadCallback ?? "";
 
   const hasLoadCallback = !!loadCallback;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
   useEffect(() => {
     if (!src) {
       console.error(new Error("No source provided, unable to load script!"));
       return;
     }
 
+    const globalWindow = window as WindowWithGlobals;
+
+    // Guards against a hook that joins mid-load (or creates the script)
+    // and unmounts before it settles: the eventual join() call becomes a
+    // no-op instead of leaking a consumer that can never be cleaned up.
+    let cancelled = false;
+    let joined = false;
+
     function isCallbackRegistered() {
-      if (!loadCallback) return true;
-
-      // biome-ignore lint/suspicious/noExplicitAny: in this case i need to check the variable in the global scope
-      return typeof (<any>window)[loadCallback] !== "undefined";
-    }
-
-    function handleScriptLoad() {
-      if (isCallbackRegistered()) {
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        delete (<any>window)[loadCallback];
-      }
+      return typeof globalWindow[loadCallback] !== "undefined";
     }
 
     function checkGlobalVariables() {
-      if (!options.globalVariables) return true;
+      const globalVariables = optionsRef.current.globalVariables;
+      if (!globalVariables) return true;
 
-      return options.globalVariables.every((variable) => {
-        // biome-ignore lint/suspicious/noExplicitAny: in this case i need to check the variable in the global scope
-        return typeof (<any>window)[variable] !== "undefined";
-      });
+      return globalVariables.every(
+        (variable) => typeof globalWindow[variable] !== "undefined",
+      );
     }
 
-    function getMetadata(scriptId: string) {
-      return scriptManifest.get(scriptId);
+    function join(metadata: ScriptManifest) {
+      if (cancelled) return;
+      joined = true;
+      metadata.consumers.add(hookId);
+      setStatus(metadata.status);
     }
 
-    function setScriptLoaded(scriptId: string) {
-      const metadata = getMetadata(scriptId);
-      if (metadata) {
-        metadata.loaded = true;
-        metadata.isLoading = false;
-        metadata.onLoad.forEach((cb) => cb());
-        metadata.onLoad = [];
-        setLoaded(true);
-      }
+    function settle(metadata: ScriptManifest) {
+      for (const callback of metadata.onLoad) callback();
+      metadata.onLoad = [];
     }
 
-    const id = hash(src).toString();
+    let metadata = scriptManifest.get(src);
 
-    const scriptMetadata = scriptManifest.get(id);
-
-    if (scriptMetadata?.loaded && !loaded) {
-      setLoaded(true);
+    // A previously failed attempt for this src is unusable; drop it so a
+    // fresh script gets created below instead of leaving the failed one
+    // orphaned in the DOM.
+    if (metadata?.status === "error") {
+      if (metadata.script) document.body.removeChild(metadata.script);
+      scriptManifest.delete(src);
+      metadata = undefined;
     }
 
-    if (scriptMetadata?.isLoading) {
-      scriptMetadata.onLoad.push(() => {
-        scriptMetadata.consumers.add(hookId);
-        setLoaded(true);
-      });
-      return;
-    }
-
-    if (scriptMetadata?.loaded && checkGlobalVariables()) {
-      scriptMetadata.consumers.add(hookId);
-      setLoaded(true);
-    }
-
-    if (!scriptMetadata?.loaded && !scriptMetadata?.isLoading) {
+    if (metadata?.status === "loading") {
+      const pending = metadata;
+      pending.onLoad.push(() => join(pending));
+    } else if (metadata?.status === "loaded") {
+      if (checkGlobalVariables()) join(metadata);
+    } else {
       const script = document.createElement("script");
-
-      scriptManifest.set(id, {
-        loaded: false,
-        errored: false,
-        isLoading: true,
+      const created: ScriptManifest = {
+        status: "loading",
         consumers: new Set(),
         onLoad: [],
         script,
-        id,
-      });
+      };
+      scriptManifest.set(src, created);
 
-      script.setAttribute("data-loaded-id", id);
+      script.setAttribute("data-loaded-id", src);
       script.src = src;
       script.async = true;
+
       script.onload = () => {
-        const data = scriptManifest.get(id);
-
-        if (!data) return;
-
-        data.consumers.add(hookId);
-
-        if (!hasLoadCallback) {
-          setScriptLoaded(id);
+        if (!hasLoadCallback || isCallbackRegistered()) {
+          created.status = "loaded";
+          settle(created);
+          join(created);
           return;
         }
 
-        if (!isCallbackRegistered() && !data.loaded) {
-          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-          (<any>window)[loadCallback] = () => {
-            setScriptLoaded(id);
-            handleScriptLoad();
-          };
-        }
+        globalWindow[loadCallback] = () => {
+          created.status = "loaded";
+          settle(created);
+          if (isCallbackRegistered()) delete globalWindow[loadCallback];
+          join(created);
+        };
       };
 
       script.onerror = (err) => {
-        const data = scriptManifest.get(id);
-
-        if (data) {
-          data.consumers.add(hookId);
-          data.loaded = false;
-          data.isLoading = false;
-          data.errored = true;
-        }
-
+        created.status = "error";
+        settle(created);
         console.error("Failed to load script", err);
-        setLoaded(true);
+        join(created);
       };
 
       document.body.appendChild(script);
     }
 
     return () => {
-      const scriptMetadata = scriptManifest.get(id);
-      if (scriptMetadata && scriptMetadata.consumers.size !== 0 && loaded) {
-        scriptMetadata.consumers.delete(hookId);
+      cancelled = true;
+      if (!joined) return;
 
-        if (scriptMetadata.consumers.size !== 0) return;
+      const current = scriptManifest.get(src);
+      if (!current) return;
 
-        if (scriptMetadata.script) {
-          scriptManifest.delete(id);
-          document.body.removeChild(scriptMetadata.script);
-          options?.onUnload?.();
-        }
+      current.consumers.delete(hookId);
+      if (current.consumers.size !== 0) return;
+
+      if (current.script) {
+        scriptManifest.delete(src);
+        document.body.removeChild(current.script);
       }
+      optionsRef.current.onUnload?.();
     };
-  }, [src, hookId, loaded, hasLoadCallback, loadCallback]);
+  }, [src, hookId, hasLoadCallback, loadCallback]);
 
-  return loaded;
+  return status;
 };

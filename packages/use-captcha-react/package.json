@@ -1,7 +1,8 @@
 {
   "name": "use-captcha-react",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "private": false,
+  "sideEffects": false,
   "author": {
     "email": "gabrieljesus9221@gmail.com",
     "name": "Gabriel Jesus",
@@ -27,19 +28,29 @@
     "bot"
   ],
   "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup",
+    "dev": "tsdown --watch",
+    "build": "tsdown",
     "size": "size-limit",
-    "size:why": "size-limit --why"
+    "size:why": "size-limit --why",
+    "test": "pnpm test:unit && pnpm test:compat",
+    "test:unit": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:compat": "npx --yes @arethetypeswrong/cli --pack . > compat.md"
   },
   "devDependencies": {
     "@size-limit/esbuild-why": "^11.1.6",
     "@size-limit/preset-small-lib": "^11.1.6",
+    "@testing-library/jest-dom": "7.0.0",
+    "@testing-library/react": "16.3.2",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "6.0.3",
+    "@vitest/coverage-v8": "4.1.10",
+    "jsdom": "29.1.1",
     "size-limit": "^11.1.6",
-    "tsup": "^8.3.5",
-    "typescript": "5.5.4"
+    "tsdown": "0.22.3",
+    "typescript": "5.5.4",
+    "vitest": "4.1.10"
   },
   "peerDependencies": {
     "react": ">=18 || <= 19",
@@ -47,19 +58,19 @@
   },
   "typesVersions": {
     "*": {
-      "googleReCaptchaV2": ["_build/googleV2.d.ts"],
-      "cloudflareTurnstile": ["_build/turnstile.d.ts"],
-      "hcaptcha": ["_build/hcaptcha.d.ts"]
+      "googleReCaptchaV2": ["_build/googleV2.d.mts"],
+      "cloudflareTurnstile": ["_build/turnstile.d.mts"],
+      "hcaptcha": ["_build/hcaptcha.d.mts"]
     }
   },
   "main": "./_build/index.cjs",
-  "types": "./_build/index.d.ts",
-  "module": "./_build/index.js",
+  "types": "./_build/index.d.mts",
+  "module": "./_build/index.mjs",
   "exports": {
     ".": {
       "import": {
-        "types": "./_build/index.d.ts",
-        "default": "./_build/index.js"
+        "types": "./_build/index.d.mts",
+        "default": "./_build/index.mjs"
       },
       "require": {
         "types": "./_build/index.d.cts",
@@ -68,8 +79,8 @@
     },
     "./googleReCaptchaV2": {
       "import": {
-        "types": "./_build/googleV2.d.ts",
-        "default": "./_build/googleV2.js"
+        "types": "./_build/googleV2.d.mts",
+        "default": "./_build/googleV2.mjs"
       },
       "require": {
         "types": "./_build/googleV2.d.cts",
@@ -78,8 +89,8 @@
     },
     "./cloudflareTurnstile": {
       "import": {
-        "types": "./_build/turnstile.d.ts",
-        "default": "./_build/turnstile.js"
+        "types": "./_build/turnstile.d.mts",
+        "default": "./_build/turnstile.mjs"
       },
       "require": {
         "types": "./_build/turnstile.d.cts",
@@ -88,8 +99,8 @@
     },
     "./hcaptcha": {
       "import": {
-        "types": "./_build/hcaptcha.d.ts",
-        "default": "./_build/hcaptcha.js"
+        "types": "./_build/hcaptcha.d.mts",
+        "default": "./_build/hcaptcha.mjs"
       },
       "require": {
         "types": "./_build/hcaptcha.d.cts",

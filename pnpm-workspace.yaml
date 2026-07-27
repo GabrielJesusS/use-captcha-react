@@ -1,3 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
+allowBuilds:
+  '@biomejs/biome': false
+  esbuild: false
+  lefthook: false

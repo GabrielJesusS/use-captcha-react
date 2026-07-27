@@ -17,7 +17,8 @@
     "declaration": true,
     "skipLibCheck": true,
     "declarationMap": false,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["./source/**/*.ts", "./source/**/*.tsx"],
   "exclude": ["node_modules", "_build"]

@@ -1,22 +1,27 @@
 module.exports = [
   {
     name: "cjs main",
-    path: "./_build/index.js",
+    path: "./_build/index.cjs",
     gzip: true,
   },
   {
     name: "cjs all",
-    path: "./_build/**/*.js",
+    path: "./_build/**/*.cjs",
     gzip: true,
   },
   {
     name: "cjs providers - [GoogleV2]",
-    path: "./_build/googleV2.js",
+    path: "./_build/googleV2.cjs",
     gzip: true,
   },
   {
     name: "cjs providers - [Turnstile]",
-    path: "./_build/turnstile.js",
+    path: "./_build/turnstile.cjs",
+    gzip: true,
+  },
+  {
+    name: "cjs providers - [HCaptcha]",
+    path: "./_build/hcaptcha.cjs",
     gzip: true,
   },
   {
@@ -30,13 +35,18 @@ module.exports = [
     gzip: true,
   },
   {
-    name: "cjs providers - [GoogleV2]",
+    name: "esm providers - [GoogleV2]",
     path: "./_build/googleV2.mjs",
     gzip: true,
   },
   {
-    name: "mjs providers - [Turnstile]",
+    name: "esm providers - [Turnstile]",
     path: "./_build/turnstile.mjs",
+    gzip: true,
+  },
+  {
+    name: "esm providers - [HCaptcha]",
+    path: "./_build/hcaptcha.mjs",
     gzip: true,
   },
 ];
