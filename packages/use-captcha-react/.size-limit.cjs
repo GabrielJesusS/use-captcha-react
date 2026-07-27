@@ -20,23 +20,33 @@ module.exports = [
     gzip: true,
   },
   {
+    name: "cjs providers - [HCaptcha]",
+    path: "./_build/hcaptcha.cjs",
+    gzip: true,
+  },
+  {
     name: "esm all",
-    path: "./_build/**/*.js",
+    path: "./_build/**/*.mjs",
     gzip: true,
   },
   {
     name: "esm main",
-    path: "./_build/index.js",
+    path: "./_build/index.mjs",
     gzip: true,
   },
   {
-    name: "cjs providers - [GoogleV2]",
-    path: "./_build/googleV2.js",
+    name: "esm providers - [GoogleV2]",
+    path: "./_build/googleV2.mjs",
     gzip: true,
   },
   {
-    name: "mjs providers - [Turnstile]",
-    path: "./_build/turnstile.js",
+    name: "esm providers - [Turnstile]",
+    path: "./_build/turnstile.mjs",
+    gzip: true,
+  },
+  {
+    name: "esm providers - [HCaptcha]",
+    path: "./_build/hcaptcha.mjs",
     gzip: true,
   },
 ];

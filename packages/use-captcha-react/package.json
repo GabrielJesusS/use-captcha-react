@@ -2,6 +2,7 @@
   "name": "use-captcha-react",
   "version": "1.0.5",
   "private": false,
+  "sideEffects": false,
   "author": {
     "email": "gabrieljesus9221@gmail.com",
     "name": "Gabriel Jesus",
@@ -62,7 +63,7 @@
       "hcaptcha": ["_build/hcaptcha.d.mts"]
     }
   },
-  "main": "./_build/index.js",
+  "main": "./_build/index.cjs",
   "types": "./_build/index.d.mts",
   "module": "./_build/index.mjs",
   "exports": {
@@ -73,7 +74,7 @@
       },
       "require": {
         "types": "./_build/index.d.cts",
-        "default": "./_build/index.js"
+        "default": "./_build/index.cjs"
       }
     },
     "./googleReCaptchaV2": {
@@ -83,7 +84,7 @@
       },
       "require": {
         "types": "./_build/googleV2.d.cts",
-        "default": "./_build/googleV2.js"
+        "default": "./_build/googleV2.cjs"
       }
     },
     "./cloudflareTurnstile": {
@@ -93,7 +94,7 @@
       },
       "require": {
         "types": "./_build/turnstile.d.cts",
-        "default": "./_build/turnstile.js"
+        "default": "./_build/turnstile.cjs"
       }
     },
     "./hcaptcha": {
@@ -103,7 +104,7 @@
       },
       "require": {
         "types": "./_build/hcaptcha.d.cts",
-        "default": "./_build/hcaptcha.js"
+        "default": "./_build/hcaptcha.cjs"
       }
     }
   }
