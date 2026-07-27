@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here, grouped by release. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased]
+## [1.1.0] - 2026-07-27
 
 ### Added
 - Full vitest test suite (hooks, all three providers, hash util) with coverage thresholds gated on pre-push.
