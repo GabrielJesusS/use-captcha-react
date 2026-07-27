@@ -17,7 +17,7 @@ describe("useLoadScript", () => {
   it("returns not-loaded before the script loads", () => {
     const { result } = renderHook(() => useLoadScript(uniqueSrc()));
 
-    expect(result.current).toEqual({ loaded: false, errored: false });
+    expect(result.current).toBe("loading");
   });
 
   it("logs an error and appends no script when src is missing", () => {
@@ -29,7 +29,7 @@ describe("useLoadScript", () => {
     const { result } = renderHook(() => useLoadScript());
 
     expect(errorSpy).toHaveBeenCalled();
-    expect(result.current.loaded).toBe(false);
+    expect(result.current).toBe("loading");
     expect(
       document.body.querySelectorAll("script[data-loaded-id]"),
     ).toHaveLength(scriptCountBefore);
@@ -56,7 +56,7 @@ describe("useLoadScript", () => {
       script?.onload?.(new Event("load"));
     });
 
-    expect(result.current).toEqual({ loaded: true, errored: false });
+    expect(result.current).toBe("loaded");
   });
 
   it("waits for the loadCallback handshake before becoming loaded", () => {
@@ -69,14 +69,14 @@ describe("useLoadScript", () => {
       script?.onload?.(new Event("load"));
     });
 
-    expect(result.current.loaded).toBe(false);
+    expect(result.current).toBe("loading");
     expect(typeof windowCallback(loadCallback)).toBe("function");
 
     act(() => {
       windowCallback(loadCallback)?.();
     });
 
-    expect(result.current.loaded).toBe(true);
+    expect(result.current).toBe("loaded");
     expect(windowCallback(loadCallback)).toBeUndefined();
   });
 
@@ -94,7 +94,7 @@ describe("useLoadScript", () => {
       "Failed to load script",
       expect.anything(),
     );
-    expect(result.current).toEqual({ loaded: false, errored: true });
+    expect(result.current).toBe("error");
 
     errorSpy.mockRestore();
   });
@@ -113,8 +113,8 @@ describe("useLoadScript", () => {
       script?.onload?.(new Event("load"));
     });
 
-    expect(first.current.loaded).toBe(true);
-    expect(second.current.loaded).toBe(true);
+    expect(first.current).toBe("loaded");
+    expect(second.current).toBe("loaded");
   });
 
   it("a hook that mounts after the script already loaded becomes loaded immediately", () => {
@@ -128,7 +128,7 @@ describe("useLoadScript", () => {
 
     const { result: lateJoiner } = renderHook(() => useLoadScript(src));
 
-    expect(lateJoiner.current.loaded).toBe(true);
+    expect(lateJoiner.current).toBe("loaded");
     expect(document.body.querySelectorAll(`script[src="${src}"]`)).toHaveLength(
       1,
     );
@@ -147,7 +147,7 @@ describe("useLoadScript", () => {
       useLoadScript(src, { globalVariables: ["__missingGlobal__"] }),
     );
 
-    expect(lateJoiner.current.loaded).toBe(false);
+    expect(lateJoiner.current).toBe("loading");
   });
 
   it("removes the script and calls onUnload when the last consumer unmounts", () => {
@@ -161,7 +161,7 @@ describe("useLoadScript", () => {
     act(() => {
       script?.onload?.(new Event("load"));
     });
-    expect(result.current.loaded).toBe(true);
+    expect(result.current).toBe("loaded");
 
     unmount();
 
@@ -177,7 +177,7 @@ describe("useLoadScript", () => {
     act(() => {
       script?.onload?.(new Event("load"));
     });
-    expect(result.current.loaded).toBe(true);
+    expect(result.current).toBe("loaded");
 
     unmount();
     expect(getScript(src)).toBeNull();
@@ -233,7 +233,7 @@ describe("useLoadScript", () => {
     act(() => {
       script?.onload?.(new Event("load"));
     });
-    expect(first.current.loaded).toBe(true);
+    expect(first.current).toBe("loaded");
 
     unmountFirst();
 
@@ -256,7 +256,7 @@ describe("useLoadScript", () => {
       1,
     );
     expect(getScript(src)).not.toBe(firstScript);
-    expect(second.current).toEqual({ loaded: false, errored: false });
+    expect(second.current).toBe("loading");
 
     errorSpy.mockRestore();
   });

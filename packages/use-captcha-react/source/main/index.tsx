@@ -27,10 +27,11 @@ export const useCaptcha = <Options, Provider extends CaptchaProvider<Options>>(
   if (!captcha.current) {
     captcha.current = new provider(key, options);
   }
-  const { loaded: hasLoaded } = useLoadScript(captcha.current.src, {
+  const scriptStatus = useLoadScript(captcha.current.src, {
     globalVariables: [captcha.current.globalName],
     loadCallback: captcha.current.loadCallback,
   });
+  const hasLoaded = scriptStatus === "loaded";
 
   useEffect(() => {
     if (!element.current || !hasLoaded) return;

@@ -1,12 +1,12 @@
 import { useEffect, useId, useRef, useState } from "react";
 
+type ScriptStatus = "loading" | "loaded" | "error";
+
 type ScriptManifest = {
   consumers: Set<string>;
   script: HTMLScriptElement | null;
   onLoad: (() => void)[];
-  loaded: boolean;
-  isLoading: boolean;
-  errored: boolean;
+  status: ScriptStatus;
 };
 
 type UseLoadScriptOptions = {
@@ -15,10 +15,7 @@ type UseLoadScriptOptions = {
   loadCallback?: string;
 };
 
-export type UseLoadScriptStatus = {
-  loaded: boolean;
-  errored: boolean;
-};
+export type UseLoadScriptStatus = ScriptStatus;
 
 type WindowWithGlobals = Window & Record<string, unknown>;
 
@@ -29,10 +26,7 @@ export const useLoadScript = (
   options: UseLoadScriptOptions = {},
 ): UseLoadScriptStatus => {
   const hookId = useId();
-  const [status, setStatus] = useState<UseLoadScriptStatus>({
-    loaded: false,
-    errored: false,
-  });
+  const [status, setStatus] = useState<ScriptStatus>("loading");
 
   const loadCallback = options.loadCallback ?? "";
 
@@ -72,11 +66,10 @@ export const useLoadScript = (
       if (cancelled) return;
       joined = true;
       metadata.consumers.add(hookId);
-      setStatus({ loaded: metadata.loaded, errored: metadata.errored });
+      setStatus(metadata.status);
     }
 
     function settle(metadata: ScriptManifest) {
-      metadata.isLoading = false;
       for (const callback of metadata.onLoad) callback();
       metadata.onLoad = [];
     }
@@ -86,23 +79,21 @@ export const useLoadScript = (
     // A previously failed attempt for this src is unusable; drop it so a
     // fresh script gets created below instead of leaving the failed one
     // orphaned in the DOM.
-    if (metadata?.errored) {
+    if (metadata?.status === "error") {
       if (metadata.script) document.body.removeChild(metadata.script);
       scriptManifest.delete(src);
       metadata = undefined;
     }
 
-    if (metadata?.isLoading) {
+    if (metadata?.status === "loading") {
       const pending = metadata;
       pending.onLoad.push(() => join(pending));
-    } else if (metadata?.loaded) {
+    } else if (metadata?.status === "loaded") {
       if (checkGlobalVariables()) join(metadata);
     } else {
       const script = document.createElement("script");
       const created: ScriptManifest = {
-        loaded: false,
-        errored: false,
-        isLoading: true,
+        status: "loading",
         consumers: new Set(),
         onLoad: [],
         script,
@@ -115,14 +106,14 @@ export const useLoadScript = (
 
       script.onload = () => {
         if (!hasLoadCallback || isCallbackRegistered()) {
-          created.loaded = true;
+          created.status = "loaded";
           settle(created);
           join(created);
           return;
         }
 
         globalWindow[loadCallback] = () => {
-          created.loaded = true;
+          created.status = "loaded";
           settle(created);
           if (isCallbackRegistered()) delete globalWindow[loadCallback];
           join(created);
@@ -130,7 +121,7 @@ export const useLoadScript = (
       };
 
       script.onerror = (err) => {
-        created.errored = true;
+        created.status = "error";
         settle(created);
         console.error("Failed to load script", err);
         join(created);
